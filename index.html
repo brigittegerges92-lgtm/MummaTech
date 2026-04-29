@@ -1,0 +1,3820 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>MummaTech — A quiet companion for the mental load</title>
+  <meta name="description" content="MummaTech helps new mums sort the mental load with calm, AI-powered support and gentle postpartum exercise guidance." />
+  <meta name="theme-color" content="#FFF8F0" />
+  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="15" fill="%23D4A574"/><path d="M16 9c-3 3-4 7-2 11 4-2 6-6 5-11 0 0-1.5-.5-3 0z" fill="none" stroke="%23FFF8F0" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 20v3" stroke="%23FFF8F0" stroke-width="1.4" stroke-linecap="round"/></svg>' />
+  <link rel="apple-touch-icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" rx="36" fill="%23FFF8F0"/><circle cx="90" cy="90" r="62" fill="%23D4A574"/><path d="M90 60c-14 14-18 32-9 50 18-9 27-27 23-50 0 0-7-3-14 0z" fill="none" stroke="%23FFF8F0" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M90 110v15" stroke="%23FFF8F0" stroke-width="6" stroke-linecap="round"/></svg>' />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;1,400&family=DM+Serif+Display&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --cream: #FFF8F0;
+      --cream-edge: #FAF7F2;
+      --gold: #D4A574;
+      --charcoal: #3D3229;
+      --warm-grey: #7A6D62;
+      --shadow: 0 2px 8px rgba(61, 50, 41, 0.06);
+      --radius-input: 8px;
+      --radius-button: 12px;
+      --max-width: 480px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--cream);
+      color: var(--charcoal);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Dawn-light: warmer cream at top centre, fading to a softer cream at the
+       edges. Sits behind the whole document — every screen benefits but the
+       landing reads it most. */
+    body {
+      background:
+        radial-gradient(
+          ellipse 90% 60% at 50% 0%,
+          var(--cream) 0%,
+          var(--cream-edge) 100%
+        )
+        var(--cream-edge);
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 32px 24px 40px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---------- Screen routing ----------
+       Only one .screen has .active at a time; others stay display:none.
+       Higher specificity than .app so it wins on the same elements. */
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    /* ---------- Greeting ---------- */
+    .landing-greeting {
+      text-align: center;
+      margin: 0 0 32px;
+    }
+
+    .greeting {
+      font-family: 'DM Serif Display', serif;
+      font-size: 30px;
+      line-height: 1.2;
+      margin: 0;
+      color: var(--charcoal);
+    }
+
+    .greeting .star {
+      color: var(--gold);
+      margin-left: 4px;
+    }
+
+    /* ---------- Hero botanical (landing) ---------- */
+    .hero-illustration {
+      display: block;
+      width: 100%;
+      max-width: 120px;
+      height: auto;
+      margin: 0 auto 36px;
+    }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      margin-bottom: 36px;
+      text-align: center;
+    }
+
+    /* ---------- 71% stat — hero moment ---------- */
+    .stat-block {
+      position: relative;
+      text-align: center;
+      padding: 36px 20px 28px;
+      margin: 0 0 40px;
+      isolation: isolate; /* contain the radial-gradient pseudo below content */
+    }
+
+    .stat-block::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 130%;
+      height: 180%;
+      background: radial-gradient(
+        ellipse at center,
+        #FDF0DA 0%,
+        rgba(253, 240, 218, 0.35) 50%,
+        rgba(253, 240, 218, 0) 75%
+      );
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .stat-number {
+      font-family: 'DM Serif Display', serif;
+      font-size: 80px;
+      line-height: 1;
+      color: var(--gold);
+      margin: 0 0 6px;
+      letter-spacing: -0.01em;
+    }
+
+    .stat-flourish {
+      display: block;
+      width: 140px;
+      max-width: 70%;
+      height: auto;
+      margin: 0 auto 14px;
+      opacity: 0.9;
+    }
+
+    .stat-caption {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin: 0;
+    }
+
+    /* ---------- Subhead stack ---------- */
+    .subhead-stack {
+      max-width: 360px;
+      margin: 0 auto 40px;
+      text-align: center;
+    }
+
+    .subhead-1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      line-height: 1.3;
+      color: var(--charcoal);
+      margin: 0 0 14px;
+    }
+
+    .subhead-2 {
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 16px;
+      line-height: 1.55;
+      color: var(--warm-grey);
+      margin: 0 0 16px;
+    }
+
+    .subhead-3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      letter-spacing: 0.01em;
+      color: var(--warm-grey);
+      margin: 0;
+    }
+
+    /* ---------- Social-proof microcopy ---------- */
+    .trust-microcopy {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--warm-grey);
+      text-align: center;
+      margin: 0 0 18px;
+    }
+
+    /* ---------- CTA ---------- */
+    .cta {
+      width: 100%;
+      background: var(--gold);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      border: none;
+      border-radius: var(--radius-button);
+      padding: 16px 32px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+    }
+
+    /* Pill variant — friendlier shape, more padding for landing CTA */
+    .cta-pill {
+      border-radius: 999px;
+      padding: 16px 40px;
+      letter-spacing: 0.02em;
+    }
+
+    /* Tiny supportive line under the landing CTA */
+    .cta-supportive {
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--warm-grey);
+      text-align: center;
+      margin: 14px 0 0;
+    }
+
+    .cta:hover {
+      box-shadow: 0 4px 12px rgba(61, 50, 41, 0.1);
+    }
+
+    .cta:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 4px;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .cta:hover {
+        transform: translateY(-1px);
+      }
+    }
+
+    /* ---------- Footer ---------- */
+    .footer-line {
+      margin-top: auto;
+      padding-top: 48px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--warm-grey);
+      font-style: italic;
+    }
+
+    /* ---------- Name overlay ---------- */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .overlay.visible {
+      pointer-events: auto;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .overlay.visible {
+        animation: fade-in 400ms ease-out forwards;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .overlay.visible {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fade-in {
+      to {
+        opacity: 1;
+      }
+    }
+
+    .overlay-card {
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+    }
+
+    .overlay-heading {
+      font-family: 'DM Serif Display', serif;
+      font-size: 32px;
+      line-height: 1.2;
+      margin: 0 0 12px;
+      color: var(--charcoal);
+    }
+
+    .overlay-subhead {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      color: var(--warm-grey);
+      margin: 0 0 32px;
+      line-height: 1.5;
+    }
+
+    .name-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .name-input {
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      color: var(--charcoal);
+      background: var(--cream);
+      padding: 14px 16px;
+      border: 1.5px solid rgba(139, 126, 116, 0.3);
+      border-radius: var(--radius-input);
+      transition: border-color 200ms ease-out;
+    }
+
+    .name-input::placeholder {
+      color: var(--warm-grey);
+    }
+
+    .name-input:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 4px;
+      border-color: var(--gold);
+    }
+
+    .name-input:focus {
+      border-color: var(--gold);
+    }
+
+    /* ---------- Brain Dump page ---------- */
+    .dump {
+      position: relative;
+      padding-bottom: 96px; /* clear fixed bottom nav */
+    }
+
+    .settings-gear {
+      position: absolute;
+      top: 24px;
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--warm-grey);
+      cursor: pointer;
+      border-radius: 8px;
+      transition: color 200ms ease-out, background-color 200ms ease-out;
+    }
+
+    .settings-gear:hover {
+      color: var(--charcoal);
+      background: rgba(139, 126, 116, 0.08);
+    }
+
+    .settings-gear:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
+
+    .dump-header-v2 {
+      margin: 0 0 28px;
+      padding-right: 48px; /* leave space under the gear */
+    }
+
+    .dump-heading {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      line-height: 1.2;
+      color: var(--charcoal);
+      margin: 0 0 6px;
+    }
+
+    .dump-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--warm-grey);
+      margin: 0 0 6px;
+    }
+
+    .dump-sub-soft {
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 14px;
+      color: var(--warm-grey);
+      margin: 0;
+    }
+
+    /* ----- Textarea + mic ----- */
+    .dump-textarea-wrap {
+      position: relative;
+    }
+
+    .dump-textarea {
+      width: 100%;
+      min-height: 300px;
+      padding: 1rem;
+      padding-right: calc(1rem + 64px); /* room for mic button */
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--charcoal);
+      background: #FFFFFF;
+      border: 1px solid var(--gold);
+      border-radius: 12px;
+      resize: none;
+      transition: box-shadow 200ms ease-out;
+    }
+
+    .dump-textarea::placeholder {
+      color: var(--warm-grey);
+    }
+
+    .dump-textarea:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.22);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .dump-textarea:focus {
+        animation: textarea-pulse 2.4s ease-in-out infinite;
+      }
+    }
+
+    @keyframes textarea-pulse {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.18); }
+      50%      { box-shadow: 0 0 0 5px rgba(212, 165, 116, 0.28); }
+    }
+
+    .mic-btn {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      width: 48px;
+      height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--cream);
+      border: 1px solid var(--gold);
+      border-radius: 50%;
+      padding: 0;
+      cursor: pointer;
+      color: var(--gold);
+      transition: background-color 200ms ease-out, box-shadow 200ms ease-out;
+    }
+
+    .mic-btn:hover:not([disabled]) {
+      box-shadow: 0 2px 8px rgba(212, 165, 116, 0.25);
+    }
+
+    .mic-btn:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
+
+    .mic-btn[disabled] {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .mic-btn .icon-recording {
+      display: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #C0392B;
+    }
+
+    .mic-btn.recording {
+      background: #FFEEEE;
+      border-color: #E8B4B4;
+      color: #C0392B;
+    }
+
+    .mic-btn.recording .icon-idle {
+      display: none;
+    }
+
+    .mic-btn.recording .icon-recording {
+      display: block;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .mic-btn.recording {
+        animation: mic-pulse 1.5s ease-in-out infinite;
+      }
+    }
+
+    @keyframes mic-pulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.35);
+      }
+      50% {
+        box-shadow: 0 0 0 8px rgba(192, 57, 43, 0);
+      }
+    }
+
+    .mic-beta-badge {
+      position: absolute;
+      top: -8px;
+      right: -10px;
+      background: var(--warm-grey);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      padding: 2px 7px;
+      border-radius: 999px;
+      pointer-events: none;
+      box-shadow: 0 1px 2px rgba(61, 50, 41, 0.12);
+    }
+
+    /* Extended-mode ring around mic button */
+    .mic-btn.extended::before {
+      content: '';
+      position: absolute;
+      inset: -5px;
+      border: 1px solid var(--warm-grey);
+      border-radius: 50%;
+      opacity: 0.55;
+      pointer-events: none;
+    }
+
+    .privacy-note {
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 12px;
+      color: var(--warm-grey);
+      margin: 10px 2px 0;
+    }
+
+    .mic-denied-msg {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--warm-grey);
+      margin: 6px 2px 0;
+    }
+
+    .mic-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 12px;
+      color: var(--warm-grey);
+      margin: 6px 2px 0;
+      min-height: 1.2em;
+      word-break: break-word;
+    }
+
+    .mic-status-dot {
+      display: none;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #C0392B;
+      flex-shrink: 0;
+    }
+
+    .mic-status.listening .mic-status-dot {
+      display: inline-block;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .mic-status.listening .mic-status-dot {
+        animation: mic-dot-pulse 1.2s ease-in-out infinite;
+      }
+    }
+
+    @keyframes mic-dot-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.35; transform: scale(0.7); }
+    }
+
+    .mic-status.saved {
+      animation: saved-fade 1000ms ease-out forwards;
+    }
+
+    @keyframes saved-fade {
+      0%, 60% { opacity: 1; }
+      100%    { opacity: 0; }
+    }
+
+    .thought-count {
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 14px;
+      color: var(--warm-grey);
+      margin: 16px 2px 24px;
+    }
+
+    .cta[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .cta[disabled]:hover {
+        transform: none;
+      }
+    }
+
+    .dump-cta-wrapper {
+      margin-top: 8px;
+    }
+
+    /* ----- Bottom nav ----- */
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: var(--cream);
+      border-top: 1px solid rgba(139, 126, 116, 0.15);
+      padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+      z-index: 20;
+    }
+
+    .nav-tab {
+      min-height: 48px;
+      background: none;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--warm-grey);
+      cursor: pointer;
+      padding: 10px 6px;
+      transition: color 200ms ease-out;
+    }
+
+    .nav-tab:hover {
+      color: var(--charcoal);
+    }
+
+    .nav-tab:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: -2px;
+      border-radius: 4px;
+    }
+
+    .nav-tab.active {
+      color: var(--gold);
+      font-weight: 500;
+    }
+
+    /* ----- Settings modal ----- */
+    .settings-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(61, 50, 41, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 200ms ease-out;
+    }
+
+    .settings-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .settings-panel {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+      background: var(--cream);
+      border-radius: 16px;
+      padding: 28px 24px 24px;
+      box-shadow: 0 12px 40px rgba(61, 50, 41, 0.18);
+    }
+
+    .settings-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 40px;
+      height: 40px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      line-height: 1;
+      color: var(--warm-grey);
+      cursor: pointer;
+      border-radius: 8px;
+    }
+
+    .settings-close:hover {
+      color: var(--charcoal);
+      background: rgba(139, 126, 116, 0.08);
+    }
+
+    .settings-close:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
+
+    .settings-heading {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--charcoal);
+      margin: 0 0 20px;
+    }
+
+    .settings-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .settings-label-group {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .settings-label {
+      display: block;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--charcoal);
+      margin-bottom: 6px;
+    }
+
+    .settings-desc {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--warm-grey);
+      margin: 0;
+    }
+
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+      background: rgba(139, 126, 116, 0.35);
+      border: none;
+      border-radius: 999px;
+      padding: 0;
+      cursor: pointer;
+      transition: background-color 200ms ease-out;
+    }
+
+    .toggle:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
+
+    .toggle[aria-checked="true"] {
+      background: var(--gold);
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: #FFFFFF;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(61, 50, 41, 0.2);
+      transition: transform 200ms ease-out;
+    }
+
+    .toggle[aria-checked="true"] .toggle-thumb {
+      transform: translateX(20px);
+    }
+
+    .settings-privacy {
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--warm-grey);
+      margin: 12px 0 0;
+      padding-top: 12px;
+      border-top: 1px solid rgba(139, 126, 116, 0.15);
+    }
+
+    @media (max-width: 520px) {
+      .settings-overlay {
+        padding: 0;
+        align-items: stretch;
+      }
+
+      .settings-panel {
+        max-width: none;
+        border-radius: 0;
+        padding: 56px 24px 32px;
+      }
+    }
+
+    /* ---------- Calm View page ---------- */
+    .calm {
+      padding-bottom: 96px; /* clear fixed bottom nav */
+    }
+
+    .calm-header {
+      margin: 0 0 24px;
+    }
+
+    .calm-greeting {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      line-height: 1.2;
+      color: var(--charcoal);
+      margin: 0 0 8px;
+    }
+
+    .calm-greeting .star {
+      color: var(--gold);
+      margin-left: 4px;
+    }
+
+    .calm-subhead {
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--warm-grey);
+      margin: 0;
+    }
+
+    .calm-card {
+      background: #FFFFFF;
+      border-radius: 14px;
+      padding: 22px 20px;
+      margin: 0 0 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .calm-card-heading {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      line-height: 1.25;
+      color: var(--charcoal);
+      margin: 0 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Icon placeholder — replaced with proper SVG icons in Prompt 5 */
+    .calm-card-heading .icon-placeholder {
+      width: 20px;
+      height: 20px;
+      border: 1px dashed rgba(212, 165, 116, 0.55);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .calm-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .calm-list li {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      color: var(--charcoal);
+      line-height: 1.5;
+      padding-left: 18px;
+      position: relative;
+    }
+
+    .calm-list li::before {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 9px;
+      width: 5px;
+      height: 5px;
+      background: var(--gold);
+      border-radius: 50%;
+    }
+
+    /* Top 3 priorities card — soft gold left accent */
+    .priorities-card {
+      border-left: 4px solid var(--gold);
+    }
+
+    /* Top 3 priorities — numbered, gold numerals */
+    .priorities-list {
+      list-style: none;
+      counter-reset: priority;
+      padding: 0;
+      margin: 0 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .priorities-list li {
+      counter-increment: priority;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--charcoal);
+      padding-left: 36px;
+      position: relative;
+    }
+
+    .priorities-list li::before {
+      content: counter(priority);
+      position: absolute;
+      left: 0;
+      top: -2px;
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .priorities-footer {
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 13px;
+      color: var(--warm-grey);
+      margin: 0;
+      padding-top: 12px;
+      border-top: 1px solid rgba(139, 126, 116, 0.15);
+    }
+
+    /* LET GO card */
+    .letgo-card .calm-card-heading {
+      color: var(--gold);
+    }
+
+    .letgo-subtitle {
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 14px;
+      color: var(--warm-grey);
+      margin: -6px 0 18px;
+    }
+
+    .letgo-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .letgo-item {
+      border-left: 2px solid rgba(212, 165, 116, 0.45);
+      padding-left: 14px;
+    }
+
+    .letgo-original {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      color: var(--charcoal);
+      margin: 0 0 6px;
+    }
+
+    .letgo-reframe {
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--warm-grey);
+      margin: 0;
+    }
+
+    /* Self-care nudge card — sage palette */
+    .nudge-card {
+      background: #F0F5ED;
+      color: #5A7052;
+      padding: 22px 20px;
+      border-radius: 14px;
+      margin: 0 0 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .nudge-card p {
+      margin: 0;
+    }
+
+    /* PANDA card — only for heavy state */
+    .panda-card {
+      background: var(--cream);
+      border: 1px solid rgba(212, 165, 116, 0.4);
+      border-radius: 14px;
+      padding: 22px 20px;
+      margin: 0 0 20px;
+    }
+
+    .panda-heading {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      color: var(--charcoal);
+      margin: 0 0 8px;
+    }
+
+    .panda-body {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--charcoal);
+      margin: 0 0 14px;
+    }
+
+    .panda-link {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--cream);
+      text-decoration: none;
+      padding: 12px 20px;
+      border-radius: var(--radius-button);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      box-shadow: var(--shadow);
+      transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+    }
+
+    .panda-link:hover {
+      box-shadow: 0 4px 12px rgba(61, 50, 41, 0.1);
+    }
+
+    .panda-link:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 4px;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .panda-link:hover {
+        transform: translateY(-1px);
+      }
+    }
+
+    /* Start fresh footer button */
+    .calm-footer {
+      margin-top: 8px;
+    }
+
+    .start-fresh-btn {
+      width: 100%;
+      background: transparent;
+      color: var(--gold);
+      border: 1.5px solid var(--gold);
+      border-radius: var(--radius-button);
+      padding: 14px 24px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 200ms ease-out;
+    }
+
+    .start-fresh-btn:hover {
+      background: rgba(212, 165, 116, 0.08);
+    }
+
+    .start-fresh-btn:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
+
+    /* ---------- Reframe text fade-in (when API replaces dot) ---------- */
+    @media (prefers-reduced-motion: no-preference) {
+      .letgo-reframe.revealed {
+        animation: reframe-fade-in 450ms ease-out;
+      }
+    }
+
+    @keyframes reframe-fade-in {
+      from { opacity: 0; transform: translateY(2px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---------- Top 3 priorities — gentle fade-up, no bounce ---------- */
+    @media (prefers-reduced-motion: no-preference) {
+      .priorities-list li {
+        opacity: 0;
+        animation: priority-rise 500ms ease-out forwards;
+      }
+      .priorities-list li:nth-child(1) { animation-delay: 200ms; }
+      .priorities-list li:nth-child(2) { animation-delay: 340ms; }
+      .priorities-list li:nth-child(3) { animation-delay: 480ms; }
+    }
+
+    @keyframes priority-rise {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---------- Reframe loading dot ---------- */
+    .reframe-loading {
+      display: inline-flex;
+      align-items: center;
+      height: 1.4em;
+      vertical-align: middle;
+    }
+
+    .reframe-loading-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0.45;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .reframe-loading-dot {
+        animation: reframe-pulse 1.4s ease-in-out infinite;
+      }
+    }
+
+    @keyframes reframe-pulse {
+      0%, 100% { opacity: 0.3; transform: scale(0.8); }
+      50%      { opacity: 1;   transform: scale(1.15); }
+    }
+
+    /* ---------- Bottom nav v2 — heart icon + active dot ---------- */
+    .nav-tab {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .nav-tab .nav-heart {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--gold);
+    }
+
+    .nav-tab.active::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: 4px;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    /* ---------- Recovery Corner ---------- */
+    .recovery {
+      padding-bottom: 96px;
+    }
+
+    /* ----- Birth type selector ----- */
+    .birth-selector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 24px 0 0;
+    }
+
+    .birth-selector[hidden],
+    .recovery-content[hidden] {
+      display: none;
+    }
+
+    .birth-heading {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      line-height: 1.3;
+      color: var(--charcoal);
+      margin: 0 0 10px;
+    }
+
+    .birth-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--warm-grey);
+      max-width: 320px;
+      margin: 0 0 28px;
+    }
+
+    .birth-cards {
+      display: flex;
+      gap: 14px;
+      width: 100%;
+      margin: 0 0 18px;
+    }
+
+    .birth-card {
+      flex: 1;
+      background: #FDF6EC;
+      border: 1.5px solid transparent;
+      border-radius: 14px;
+      padding: 24px 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--charcoal);
+      cursor: pointer;
+      transition: border-color 200ms ease-out, box-shadow 200ms ease-out;
+    }
+
+    .birth-card:hover,
+    .birth-card:focus-visible {
+      border-color: var(--gold);
+      outline: none;
+    }
+
+    .birth-card.selected {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(212, 165, 116, 0.18);
+    }
+
+    .birth-footnote {
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 12px;
+      color: var(--warm-grey);
+      margin: 0;
+    }
+
+    /* ----- Recovery content header ----- */
+    .recovery-wreath {
+      display: block;
+      margin: 8px auto 16px;
+    }
+
+    .recovery-heading {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      line-height: 1.3;
+      text-align: center;
+      color: var(--charcoal);
+      margin: 0 0 10px;
+    }
+
+    .recovery-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      line-height: 1.55;
+      text-align: center;
+      color: var(--warm-grey);
+      max-width: 320px;
+      margin: 0 auto 26px;
+    }
+
+    /* ----- Phase cards ----- */
+    .phase-card {
+      background: #FFFFFF;
+      border-radius: 14px;
+      margin: 0 0 16px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .phase-card-summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 20px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .phase-card-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .phase-card-summary:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: -2px;
+      border-radius: 14px;
+    }
+
+    .phase-card-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      line-height: 1.3;
+      color: var(--charcoal);
+      margin: 0;
+      flex: 1;
+    }
+
+    .phase-card-chevron {
+      flex-shrink: 0;
+      color: var(--gold);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .phase-card-chevron {
+        transition: transform 200ms ease-out;
+      }
+    }
+
+    .phase-card[open] .phase-card-chevron {
+      transform: rotate(180deg);
+    }
+
+    .phase-card-body {
+      padding: 4px 20px 22px;
+    }
+
+    .clearance-note {
+      background: #F0F5ED;
+      color: #5A7052;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 0 0 18px;
+    }
+
+    .exercise-group {
+      margin: 0 0 18px;
+    }
+
+    .exercise-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .exercise-group-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--warm-grey);
+      margin: 0 0 12px;
+    }
+
+    .exercise {
+      margin: 0 0 14px;
+    }
+
+    .exercise:last-child {
+      margin-bottom: 0;
+    }
+
+    .exercise-name {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--charcoal);
+      margin: 0 0 4px;
+    }
+
+    .exercise-desc {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.55;
+      color: var(--charcoal);
+      margin: 0 0 4px;
+    }
+
+    .exercise-reps {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gold);
+      margin: 0;
+    }
+
+    .exercise-note {
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--warm-grey);
+      margin: 8px 0 0;
+    }
+
+    /* ----- Partner sub-section ----- */
+    .partner-section {
+      margin: 4px 0 0;
+      border-top: 1px solid rgba(139, 126, 116, 0.15);
+      padding-top: 4px;
+    }
+
+    .partner-summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 0;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .partner-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .partner-summary:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
+
+    .partner-leaf-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .partner-summary-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--warm-grey);
+      flex: 1;
+    }
+
+    .partner-chevron {
+      width: 14px;
+      height: 14px;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .partner-chevron {
+        transition: transform 200ms ease-out;
+      }
+    }
+
+    .partner-section[open] .partner-chevron {
+      transform: rotate(180deg);
+    }
+
+    .partner-body {
+      padding: 4px 0 8px;
+    }
+
+    /* ----- Disclaimer / warning / sources ----- */
+    .disclaimer-card {
+      background: #FDF6EC;
+      border-left: 3px solid var(--gold);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 4px 0 14px;
+    }
+
+    .disclaimer-card p {
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 11px;
+      line-height: 1.6;
+      color: var(--warm-grey);
+      margin: 0;
+    }
+
+    .warning-card {
+      background: #FFF5F5;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 0 0 22px;
+    }
+
+    .warning-card p {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      line-height: 1.6;
+      color: #8B4C4C;
+      margin: 0;
+    }
+
+    .warning-card strong {
+      font-weight: 500;
+    }
+
+    .sources-line {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 9px;
+      line-height: 1.55;
+      color: #B5A99E;
+      text-align: center;
+      margin: 0 0 14px;
+    }
+
+    .change-birth-btn {
+      display: block;
+      min-height: 44px;
+      margin: 0 auto;
+      background: none;
+      border: none;
+      padding: 12px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: var(--warm-grey);
+      text-decoration: underline;
+      text-decoration-color: rgba(122, 109, 98, 0.45);
+      text-underline-offset: 3px;
+      cursor: pointer;
+    }
+
+    .change-birth-btn:hover {
+      color: var(--charcoal);
+    }
+
+    .change-birth-btn:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    /* ---------- Visually-hidden helper ---------- */
+    .visually-hidden,
+    .sr-only {
+      position: absolute !important;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* ---------- localStorage-unavailable banner ---------- */
+    .storage-banner {
+      background: rgba(212, 165, 116, 0.12);
+      border: 1px solid rgba(212, 165, 116, 0.35);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin: 0 0 18px;
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--warm-grey);
+    }
+
+    /* ---------- Voice-fail hint ---------- */
+    .voice-fail-hint {
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--warm-grey);
+      background: rgba(212, 165, 116, 0.08);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin: 8px 2px 0;
+    }
+
+    /* ---------- Empty calm-view state ---------- */
+    .calm-empty {
+      text-align: center;
+      padding: 40px 12px 24px;
+    }
+
+    .calm-empty-heading {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      line-height: 1.3;
+      color: var(--charcoal);
+      margin: 18px 0 10px;
+    }
+
+    .calm-empty-body {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--warm-grey);
+      max-width: 320px;
+      margin: 0 auto 24px;
+    }
+
+    .calm-empty-cta {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      border: none;
+      border-radius: var(--radius-button);
+      padding: 14px 28px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+    }
+
+    .calm-empty-cta:hover {
+      box-shadow: 0 4px 12px rgba(61, 50, 41, 0.1);
+    }
+
+    .calm-empty-cta:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 4px;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .calm-empty-cta:hover {
+        transform: translateY(-1px);
+      }
+    }
+
+    /* ---------- Hero botanical (landing) ---------- */
+    .hero-illustration {
+      display: block;
+      width: 100%;
+      max-width: 200px;
+      height: auto;
+      margin: 0 auto 24px;
+    }
+
+    /* ---------- Brain dump sprig accent ---------- */
+    .dump-sprig {
+      display: block;
+      width: 100%;
+      max-width: 80px;
+      height: auto;
+      margin: 0 auto 16px;
+    }
+
+    /* ---------- Calm view priorities wreath ---------- */
+    .priorities-wreath {
+      display: block;
+      width: 100%;
+      max-width: 120px;
+      height: auto;
+      margin: 4px auto 12px;
+    }
+
+    /* ---------- Category icons (24px) ---------- */
+    .cat-icon {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+      color: var(--gold);
+    }
+
+    /* ---------- Sorting overlay ---------- */
+    .sorting-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--cream);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 18px;
+      z-index: 90;
+      opacity: 0;
+    }
+
+    .sorting-overlay.visible {
+      display: flex;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .sorting-overlay.visible {
+        animation: fade-in 300ms ease-out forwards;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sorting-overlay.visible {
+        opacity: 1;
+      }
+    }
+
+    .sorting-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 0 6px rgba(212, 165, 116, 0.18);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .sorting-dot {
+        animation: sorting-orbit 1.5s linear infinite;
+        transform-origin: center;
+      }
+    }
+
+    @keyframes sorting-orbit {
+      from { transform: rotate(0deg) translateX(10px) rotate(0deg); }
+      to   { transform: rotate(360deg) translateX(10px) rotate(-360deg); }
+    }
+
+    .sorting-label {
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 14px;
+      color: var(--warm-grey);
+      margin: 0;
+      letter-spacing: 0.02em;
+    }
+
+    /* ---------- Screen fade transitions ---------- */
+    @media (prefers-reduced-motion: no-preference) {
+      .screen.active {
+        animation: screen-fade-in 400ms ease-out;
+      }
+      .screen.fading-out {
+        animation: screen-fade-out 200ms ease-out forwards;
+      }
+    }
+
+    @keyframes screen-fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    @keyframes screen-fade-out {
+      from { opacity: 1; }
+      to   { opacity: 0; }
+    }
+
+    /* ---------- Calm card stagger ---------- */
+    @media (prefers-reduced-motion: no-preference) {
+      #calmContent > * {
+        opacity: 0;
+        animation: card-rise-in 400ms ease-out forwards;
+      }
+      #calmContent > *:nth-child(1) { animation-delay: 0ms; }
+      #calmContent > *:nth-child(2) { animation-delay: 150ms; }
+      #calmContent > *:nth-child(3) { animation-delay: 300ms; }
+      #calmContent > *:nth-child(4) { animation-delay: 450ms; }
+      #calmContent > *:nth-child(5) { animation-delay: 600ms; }
+      #calmContent > *:nth-child(6) { animation-delay: 750ms; }
+      #calmContent > *:nth-child(7) { animation-delay: 900ms; }
+      #calmContent > *:nth-child(n+8) { animation-delay: 1050ms; }
+    }
+
+    @keyframes card-rise-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---------- Button press scale (gentle, 0.98) ---------- */
+    @media (prefers-reduced-motion: no-preference) {
+      .cta,
+      .panda-link,
+      .start-fresh-btn,
+      .birth-card,
+      .change-birth-btn,
+      .mic-btn,
+      .settings-gear,
+      .settings-close,
+      .nav-tab,
+      .toggle {
+        transition: transform 150ms ease-out,
+                    box-shadow 200ms ease-out,
+                    background-color 200ms ease-out,
+                    color 200ms ease-out,
+                    border-color 200ms ease-out;
+      }
+      .cta:active:not([disabled]),
+      .panda-link:active,
+      .start-fresh-btn:active,
+      .birth-card:active,
+      .change-birth-btn:active,
+      .mic-btn:active:not([disabled]),
+      .settings-gear:active,
+      .settings-close:active,
+      .nav-tab:active,
+      .toggle:active {
+        transform: scale(0.98);
+      }
+    }
+
+    /* ---------- Responsive padding (mobile baseline + larger screens) ---------- */
+    @media (min-width: 768px) {
+      .app {
+        padding: 48px 32px 56px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .stat-number {
+        font-size: 60px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .app {
+        padding: 24px 20px 36px;
+      }
+      .greeting {
+        font-size: 26px;
+      }
+      .stat-number {
+        font-size: 52px;
+      }
+      .subhead-1 {
+        font-size: 20px;
+      }
+    }
+
+    /* ---------- Landing page entrance stagger ---------- */
+    @media (prefers-reduced-motion: no-preference) {
+      #landing.active .landing-greeting,
+      #landing.active .hero-illustration,
+      #landing.active .stat-block,
+      #landing.active .subhead-stack,
+      #landing.active .trust-microcopy,
+      #landing.active .cta,
+      #landing.active .cta-supportive,
+      #landing.active .footer-line {
+        opacity: 0;
+        animation: landing-rise 600ms ease-out forwards;
+      }
+      #landing.active .landing-greeting   { animation-delay:    0ms; }
+      #landing.active .hero-illustration  { animation-delay:  250ms; }
+      #landing.active .stat-block         { animation-delay:  500ms; }
+      #landing.active .subhead-stack      { animation-delay:  750ms; }
+      #landing.active .trust-microcopy    { animation-delay: 1000ms; }
+      #landing.active .cta                { animation-delay: 1180ms; }
+      #landing.active .cta-supportive     { animation-delay: 1360ms; }
+      #landing.active .footer-line        { animation-delay: 1520ms; }
+    }
+
+    @keyframes landing-rise {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Screen-reader live region for status announcements -->
+  <div
+    id="srLive"
+    class="sr-only"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  ></div>
+
+  <!-- Sorting overlay (brain dump → calm view transition) -->
+  <div
+    class="sorting-overlay"
+    id="sortingOverlay"
+    role="status"
+    aria-live="polite"
+    aria-hidden="true"
+  >
+    <span class="sorting-dot" aria-hidden="true"></span>
+    <p class="sorting-label">Sorting your thoughts&hellip;</p>
+  </div>
+
+  <!-- Name capture overlay -->
+  <div
+    class="overlay"
+    id="nameOverlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="overlayHeading"
+    hidden
+  >
+    <div class="overlay-card">
+      <h1 class="overlay-heading" id="overlayHeading">Before we begin&hellip;</h1>
+      <p class="overlay-subhead">What name should we call you, mumma?</p>
+      <form class="name-form" id="nameForm" novalidate>
+        <label for="nameInput" class="visually-hidden" style="position:absolute;left:-9999px">
+          Your name
+        </label>
+        <input
+          type="text"
+          id="nameInput"
+          class="name-input"
+          placeholder="Your name"
+          autocomplete="given-name"
+          aria-label="Your name"
+          required
+        />
+        <button type="submit" class="cta" aria-label="Begin">Begin</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Landing page -->
+  <main class="app screen" id="landing">
+    <header class="landing-greeting">
+      <h1 class="greeting">
+        Hey <span id="nameSlot">mumma</span><span class="star" aria-hidden="true">✦</span>
+      </h1>
+    </header>
+
+    <!-- Hero botanical — single eucalyptus sprig, hand-drawn feel -->
+    <svg
+      class="hero-illustration"
+      viewBox="0 0 120 160"
+      fill="none"
+      stroke="#D4A574"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="60" cy="10" r="3" fill="#D4A574" stroke="none" opacity="0.85" />
+      <path d="M60 14 C 56 40, 64 80, 60 148" />
+      <ellipse cx="44" cy="36" rx="11" ry="4" transform="rotate(-30 44 36)" />
+      <ellipse cx="76" cy="36" rx="11" ry="4" transform="rotate(30 76 36)" />
+      <ellipse cx="40" cy="62" rx="13" ry="4.5" transform="rotate(-22 40 62)" />
+      <ellipse cx="80" cy="62" rx="13" ry="4.5" transform="rotate(22 80 62)" />
+      <ellipse cx="44" cy="90" rx="12" ry="4" transform="rotate(-18 44 90)" />
+      <ellipse cx="76" cy="90" rx="12" ry="4" transform="rotate(18 76 90)" />
+      <ellipse cx="50" cy="118" rx="9" ry="3.5" transform="rotate(-12 50 118)" />
+      <ellipse cx="70" cy="118" rx="9" ry="3.5" transform="rotate(12 70 118)" />
+    </svg>
+
+    <section class="hero" aria-labelledby="heroStat">
+      <div class="stat-block">
+        <p class="stat-number" id="heroStat" aria-label="Seventy-one percent">71%</p>
+        <svg
+          class="stat-flourish"
+          viewBox="0 0 140 14"
+          fill="none"
+          stroke="#D4A574"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M8 8 C 32 3, 62 12, 96 5 S 130 9, 132 7" />
+        </svg>
+        <p class="stat-caption">Of household cognitive labour</p>
+      </div>
+
+      <div class="subhead-stack">
+        <p class="subhead-1">You&rsquo;re carrying so much.</p>
+        <p class="subhead-2">You&rsquo;re not failing. You&rsquo;re carrying a lot.</p>
+        <p class="subhead-3">MummaTech is a quiet place to put it down for a moment.</p>
+      </div>
+
+      <p class="trust-microcopy">Trusted by mums like you</p>
+
+      <button
+        type="button"
+        class="cta cta-pill"
+        id="pourCta"
+        aria-label="Pour it all out"
+      >
+        Pour it all out &rarr;
+      </button>
+
+      <p class="cta-supportive">It&rsquo;s okay to start with one thought.</p>
+    </section>
+
+    <p class="footer-line">A quiet companion for the mental load.</p>
+  </main>
+
+  <!-- Brain Dump page -->
+  <main class="app dump screen" id="brainDump">
+    <header class="dump-header-v2">
+      <h1 class="dump-heading">Brain dump</h1>
+      <p class="dump-sub">Let it all out. Everything. Talk or type.</p>
+      <p class="dump-sub-soft">Nothing is too small. Nothing is too much.</p>
+    </header>
+
+    <div class="storage-banner" id="storageBanner" hidden>
+      Your dump won&rsquo;t be saved between visits, but it&rsquo;s here for now.
+    </div>
+
+    <div class="dump-textarea-wrap">
+      <label for="dumpText" class="visually-hidden" style="position:absolute;left:-9999px">
+        Your thoughts
+      </label>
+      <textarea
+        id="dumpText"
+        class="dump-textarea"
+        spellcheck="false"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        placeholder="Tell me what&rsquo;s swirling around&hellip; or tap the mic to speak"
+      ></textarea>
+      <button
+        type="button"
+        class="mic-btn"
+        id="micBtn"
+        aria-label="Start voice recording"
+        aria-pressed="false"
+        title="Voice input is in beta — type for the most reliable experience."
+      >
+        <svg
+          class="icon-idle"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <rect x="9" y="3" width="6" height="12" rx="3" />
+          <path d="M5 11a7 7 0 0 0 14 0" />
+          <line x1="12" y1="18" x2="12" y2="22" />
+          <line x1="8" y1="22" x2="16" y2="22" />
+        </svg>
+        <span class="icon-recording" aria-hidden="true"></span>
+        <span class="mic-beta-badge" aria-hidden="true">Beta</span>
+      </button>
+    </div>
+
+    <p class="privacy-note">Voice stays on your device. Nothing is recorded or sent.</p>
+    <p class="mic-denied-msg" id="micDeniedMsg" hidden>
+      Mic isn&rsquo;t working. Make sure you&rsquo;re running on http://localhost (not file://)
+      and that you&rsquo;ve allowed mic permission.
+    </p>
+    <p class="voice-fail-hint" id="voiceFailHint" hidden>
+      Try typing if voice isn&rsquo;t working today.
+    </p>
+    <p class="mic-status" id="micDebug" aria-hidden="true">
+      <span class="mic-status-dot" aria-hidden="true"></span>
+      <span class="mic-status-text"></span>
+    </p>
+
+    <p class="thought-count" id="thoughtCount" aria-live="polite">Start anywhere.</p>
+
+    <button
+      type="button"
+      class="settings-gear"
+      id="settingsGear"
+      aria-label="Open settings"
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+      </svg>
+    </button>
+
+    <div class="dump-cta-wrapper">
+      <button
+        type="button"
+        class="cta"
+        id="sortCta"
+        disabled
+        aria-label="Sort my thoughts"
+      >Sort my thoughts &rarr;</button>
+    </div>
+
+    <nav class="bottom-nav" aria-label="Main navigation">
+      <button type="button" class="nav-tab" data-nav="home">Home</button>
+      <button type="button" class="nav-tab active" data-nav="dump" aria-current="page">Brain dump</button>
+      <button type="button" class="nav-tab" data-nav="calm">Calm view</button>
+      <button type="button" class="nav-tab" data-nav="recovery">
+        <svg class="nav-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 20.7C7.7 17.5 4 14.5 4 10.5C4 7.5 6 5.5 8.5 5.5C10 5.5 11.3 6.3 12 7.5C12.7 6.3 14 5.5 15.5 5.5C18 5.5 20 7.5 20 10.5C20 14.5 16.3 17.5 12 20.7Z" />
+        </svg>
+        Recovery
+      </button>
+    </nav>
+  </main>
+
+  <!-- Calm View page -->
+  <main class="app calm screen" id="calmView">
+    <header class="calm-header">
+      <h1 class="calm-greeting">
+        Hey <span id="calmNameSlot">mumma</span><span class="star" aria-hidden="true">✦</span>
+      </h1>
+      <p class="calm-subhead" id="calmSubhead"></p>
+    </header>
+
+    <div id="calmContent"></div>
+
+    <div class="calm-footer">
+      <button type="button" class="start-fresh-btn" id="startFreshBtn">
+        Start fresh &rarr;
+      </button>
+    </div>
+
+    <nav class="bottom-nav" aria-label="Main navigation">
+      <button type="button" class="nav-tab" data-nav="home">Home</button>
+      <button type="button" class="nav-tab" data-nav="dump">Brain dump</button>
+      <button type="button" class="nav-tab active" data-nav="calm" aria-current="page">Calm view</button>
+      <button type="button" class="nav-tab" data-nav="recovery">
+        <svg class="nav-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 20.7C7.7 17.5 4 14.5 4 10.5C4 7.5 6 5.5 8.5 5.5C10 5.5 11.3 6.3 12 7.5C12.7 6.3 14 5.5 15.5 5.5C18 5.5 20 7.5 20 10.5C20 14.5 16.3 17.5 12 20.7Z" />
+        </svg>
+        Recovery
+      </button>
+    </nav>
+  </main>
+
+  <!-- Recovery Corner page -->
+  <main class="app recovery screen" id="recovery">
+    <!-- Birth type selector — first visit only -->
+    <section class="birth-selector" id="birthSelector" hidden>
+      <h1 class="birth-heading" id="birthSelectorHeading">Your recovery is personal</h1>
+      <p class="birth-sub">So we can show you the right exercises, how did you deliver?</p>
+      <div class="birth-cards" role="radiogroup" aria-labelledby="birthSelectorHeading">
+        <button type="button" class="birth-card" data-birth="vaginal" role="radio" aria-checked="false">
+          <span class="birth-card-title">Vaginal birth</span>
+        </button>
+        <button type="button" class="birth-card" data-birth="csection" role="radio" aria-checked="false">
+          <span class="birth-card-title">C-section</span>
+        </button>
+      </div>
+      <p class="birth-footnote">You can change this anytime in settings.</p>
+    </section>
+
+    <!-- Recovery content — shown once birth type is set -->
+    <section class="recovery-content" id="recoveryContent" hidden>
+      <!-- Botanical wreath -->
+      <svg class="recovery-wreath" width="120" height="80" viewBox="0 0 120 80" fill="none"
+        stroke="#D4A574" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M60 14 C 38 18, 24 30, 22 50 C 24 64, 40 70, 60 70" />
+        <path d="M60 14 C 82 18, 96 30, 98 50 C 96 64, 80 70, 60 70" />
+        <ellipse cx="30" cy="28" rx="6" ry="2.6" transform="rotate(-50 30 28)" />
+        <ellipse cx="22" cy="44" rx="7" ry="2.8" transform="rotate(-90 22 44)" />
+        <ellipse cx="26" cy="60" rx="6" ry="2.6" transform="rotate(-130 26 60)" />
+        <ellipse cx="44" cy="68" rx="5" ry="2.4" transform="rotate(-160 44 68)" />
+        <ellipse cx="90" cy="28" rx="6" ry="2.6" transform="rotate(50 90 28)" />
+        <ellipse cx="98" cy="44" rx="7" ry="2.8" transform="rotate(90 98 44)" />
+        <ellipse cx="94" cy="60" rx="6" ry="2.6" transform="rotate(130 94 60)" />
+        <ellipse cx="76" cy="68" rx="5" ry="2.4" transform="rotate(160 76 68)" />
+      </svg>
+
+      <h1 class="recovery-heading">Your recovery, week by week</h1>
+      <p class="recovery-sub">Gentle, evidence-based exercises to rebuild your strength. Go at your own pace &mdash; there&rsquo;s no rush.</p>
+
+      <div id="phaseCards"></div>
+
+      <!-- Medical disclaimer -->
+      <section class="disclaimer-card" aria-label="Medical disclaimer">
+        <p>This is general wellness information, not medical advice. Based on the 2025 Canadian Postpartum Physical Activity Guideline and Australian clinical recommendations. Every recovery is different. Always consult your doctor, midwife, or women&rsquo;s health physiotherapist before starting or changing your exercise routine.</p>
+      </section>
+
+      <!-- Warning signs -->
+      <section class="warning-card" aria-label="Warning signs">
+        <p><strong>Stop and contact your doctor if you experience:</strong> pain during or after exercise, increased vaginal bleeding, dizziness or faintness, feeling of heaviness or dragging in your pelvis, or leaking urine during exercise.</p>
+      </section>
+
+      <p class="sources-line">Based on: 2025 Canadian Postpartum Guideline (Davenport et al., BJSM), ACOG, Pregnancy Birth &amp; Baby Australia, The Royal Women&rsquo;s Hospital Melbourne.</p>
+
+      <button type="button" class="change-birth-btn" id="changeBirthBtn">Change birth type</button>
+    </section>
+
+    <nav class="bottom-nav" aria-label="Main navigation">
+      <button type="button" class="nav-tab" data-nav="home">Home</button>
+      <button type="button" class="nav-tab" data-nav="dump">Brain dump</button>
+      <button type="button" class="nav-tab" data-nav="calm">Calm view</button>
+      <button type="button" class="nav-tab active" data-nav="recovery" aria-current="page">
+        <svg class="nav-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 20.7C7.7 17.5 4 14.5 4 10.5C4 7.5 6 5.5 8.5 5.5C10 5.5 11.3 6.3 12 7.5C12.7 6.3 14 5.5 15.5 5.5C18 5.5 20 7.5 20 10.5C20 14.5 16.3 17.5 12 20.7Z" />
+        </svg>
+        Recovery
+      </button>
+    </nav>
+  </main>
+
+  <!-- Settings modal -->
+  <div
+    class="settings-overlay"
+    id="settingsOverlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="settingsHeading"
+    hidden
+  >
+    <div class="settings-panel" role="document">
+      <button
+        type="button"
+        class="settings-close"
+        id="settingsClose"
+        aria-label="Close settings"
+      >&times;</button>
+      <h2 class="settings-heading" id="settingsHeading">Settings</h2>
+
+      <div class="settings-row">
+        <div class="settings-label-group">
+          <span class="settings-label" id="extendedLabel">Extended voice recording</span>
+          <p class="settings-desc" id="extendedDesc">
+            Keep the mic on for up to 10 minutes, even during long pauses.
+            Useful when you need to think out loud or take breaks mid-thought.
+          </p>
+        </div>
+        <button
+          type="button"
+          class="toggle"
+          id="extendedToggle"
+          role="switch"
+          aria-checked="false"
+          aria-labelledby="extendedLabel"
+          aria-describedby="extendedDesc"
+        >
+          <span class="toggle-thumb" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <p class="settings-privacy">
+        Your voice never leaves your device. We don&rsquo;t record, store, or send audio
+        anywhere. This setting just extends how long the mic stays on while you think.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      if (window.location.protocol === 'file:') {
+        console.warn(
+          'MummaTech needs to run on a local server for the microphone to work. Run: npx serve'
+        );
+      }
+
+      // ---------- Reframe API ----------
+      // The Anthropic key lives server-side in /api/reframe (Vercel function).
+      const REFRAME_ENDPOINT = '/api/reframe';
+
+      const STORAGE_KEY = 'mummaName';
+      const overlay = document.getElementById('nameOverlay');
+      const landing = document.getElementById('landing');
+      const form = document.getElementById('nameForm');
+      const input = document.getElementById('nameInput');
+      const nameSlot = document.getElementById('nameSlot');
+      const srLive = document.getElementById('srLive');
+
+      // Quick storage probe — used to show the gentle "won't save" banner.
+      const STORAGE_OK = (function () {
+        try {
+          const k = '__mt_probe__';
+          localStorage.setItem(k, '1');
+          localStorage.removeItem(k);
+          return true;
+        } catch (e) { return false; }
+      })();
+
+      function announce(msg) {
+        if (!srLive) return;
+        // Toggle the text to force AT to re-read the message.
+        srLive.textContent = '';
+        setTimeout(function () { srLive.textContent = msg; }, 50);
+      }
+
+      function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(function (el) {
+          el.classList.toggle('active', el.id === screenId);
+        });
+      }
+
+      function showLanding(name) {
+        nameSlot.textContent = name;
+        overlay.hidden = true;
+        overlay.classList.remove('visible');
+        showScreen('landing');
+      }
+
+      function showOverlay() {
+        // Screens stay hidden (no .active) until the name is submitted.
+        showScreen(null);
+        overlay.hidden = false;
+        // Force reflow so the fade-in animation runs.
+        void overlay.offsetWidth;
+        overlay.classList.add('visible');
+        setTimeout(function () {
+          input.focus();
+        }, 400);
+      }
+
+      const stored = (function () {
+        try {
+          return localStorage.getItem(STORAGE_KEY);
+        } catch (e) {
+          return null;
+        }
+      })();
+
+      if (stored && stored.trim()) {
+        showLanding(stored.trim());
+      } else {
+        showOverlay();
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const value = input.value.trim();
+        if (!value) {
+          input.focus();
+          return;
+        }
+        try {
+          localStorage.setItem(STORAGE_KEY, value);
+        } catch (e) {
+          // Storage may be disabled; show landing anyway for this session.
+        }
+        showLanding(value);
+      });
+
+      // ---------- Brain Dump view ----------
+      const DUMP_KEY = 'mummaBrainDump';
+      const MIC_EXTENDED_KEY = 'mummaMicExtended';
+      const SILENCE_MS = 15000;
+      const EXTENDED_HARD_CAP_MS = 10 * 60 * 1000;
+
+      const brainDump = document.getElementById('brainDump');
+      const pourCta = document.getElementById('pourCta');
+      const dumpText = document.getElementById('dumpText');
+      const thoughtCount = document.getElementById('thoughtCount');
+      const sortCta = document.getElementById('sortCta');
+      const micBtn = document.getElementById('micBtn');
+      const micDeniedMsg = document.getElementById('micDeniedMsg');
+      const micDebug = document.getElementById('micDebug');
+      const settingsGear = document.getElementById('settingsGear');
+      const settingsOverlay = document.getElementById('settingsOverlay');
+      const settingsClose = document.getElementById('settingsClose');
+      const extendedToggle = document.getElementById('extendedToggle');
+      const navTabs = document.querySelectorAll('.nav-tab');
+
+      function safeGet(key) {
+        try { return localStorage.getItem(key); } catch (e) { return null; }
+      }
+      let storageEverFailed = !STORAGE_OK;
+      function safeSet(key, value) {
+        try { localStorage.setItem(key, value); }
+        catch (e) {
+          // Quota exceeded or storage disabled mid-session — surface the banner.
+          storageEverFailed = true;
+          const banner = document.getElementById('storageBanner');
+          if (banner) banner.hidden = false;
+        }
+      }
+
+      function showBrainDump() {
+        showScreen('brainDump');
+        window.scrollTo(0, 0);
+        // Reveal the storage banner once we're on the dump screen, if needed.
+        const banner = document.getElementById('storageBanner');
+        if (banner && !STORAGE_OK) banner.hidden = false;
+        setTimeout(function () { dumpText.focus(); }, 0);
+      }
+
+      function showLandingFromDump() {
+        // Stop any active recording before leaving.
+        stopRecognition();
+        showScreen('landing');
+        window.scrollTo(0, 0);
+      }
+
+      // ---------- Counter ----------
+      function countThoughts(text) {
+        if (!text) return 0;
+        return text
+          .split(/[.!?\n]+/)
+          .map(function (s) { return s.trim(); })
+          .filter(function (s) { return s.length > 0; })
+          .length;
+      }
+
+      function counterText(n) {
+        if (n === 0) return 'Start anywhere.';
+        if (n < 10) return '~' + n + ' thoughts so far. Keep going.';
+        return 'You’re doing beautifully. ~' + n + ' thoughts so far.';
+      }
+
+      // ---------- Persistence ----------
+      let saveTimer = null;
+      function scheduleSave() {
+        if (saveTimer) clearTimeout(saveTimer);
+        saveTimer = setTimeout(function () {
+          safeSet(DUMP_KEY, dumpText.value);
+          saveTimer = null;
+        }, 500);
+      }
+
+      function updateDumpUI() {
+        const value = dumpText.value;
+        const n = countThoughts(value);
+        thoughtCount.textContent = counterText(n);
+        sortCta.disabled = value.trim().length === 0;
+      }
+
+      // ---------- Sorting ----------
+      // Categories in priority order — first match wins.
+      // Order: MY_BODY → BABY → HOME → WORK → RELATIONSHIPS → LET_GO → OTHER.
+      const CATEGORY_KEYWORDS = [
+        ['MY_BODY', [
+          'shower', 'showered', 'showering', 'eat', 'eaten', 'eating', 'ate',
+          'food', 'hungry', 'drink', 'drank', 'water', 'hydrate', 'iron',
+          'vitamin', 'pill', 'medication', 'supplement', 'period', 'bleeding',
+          'blood', 'pad', 'tampon', 'nipple', 'nipples', 'sore', 'hurt',
+          'hurts', 'hurting', 'ache', 'achy', 'aching', 'exhausted',
+          'knackered', 'drained', 'nap', 'dizzy', 'faint', 'headache',
+          'migraine', 'lower back', 'my back', 'back pain', 'neck',
+          'shoulder', 'hair', 'weight', 'body', 'scar', 'stitches', 'stitch',
+          'perineum', 'pelvic', 'recovery', 'gp', 'doctor', 'midwife', 'ob',
+          'obstetrician', 'physio', 'postpartum', 'postnatal', 'hormonal',
+          'hormones', 'anxiety', 'anxious', 'depression', 'depressed', 'mood',
+          'sex', 'intimacy', 'libido', 'breast', 'breasts', 'mastitis',
+          'blocked duct', 'engorged', 'leaking', 'latch', 'c-section',
+          'csection', 'vbac', 'episiotomy', 'prolapse', 'incontinence',
+          'leak', 'sweat', 'sweating', 'night sweats', 'hot flush', 'my own',
+          'for myself', 'time for me', 'tired', 'maternal health'
+        ]],
+        ['BABY', [
+          'baby', 'bub', 'bubba', 'newborn', 'infant', 'kids', 'child',
+          'son', 'daughter', 'her', 'him', 'she', 'he', 'pump', 'pumping',
+          'expressing', 'feed', 'feeding', 'fed', 'formula', 'bottle',
+          'bottles', 'breastfeed', 'breastfeeding', 'breastmilk',
+          'milk supply', 'oversupply', 'undersupply', 'foremilk', 'hindmilk',
+          'nappy', 'nappies', 'diaper', 'diapers', 'onesie', 'swaddle',
+          'sleep suit', 'dummy', 'pacifier', 'cot', 'crib', 'bassinet',
+          'monitor', 'paediatrician', 'pediatrician', 'immunisation',
+          'immunization', 'vaccination', 'vaccine', 'jab', 'weight gain',
+          'growth', 'milestone', 'tummy time', 'rolling', 'sitting',
+          'crawling', 'teething', 'teeth', 'gum', 'drool', 'reflux',
+          'colic', 'gas', 'wind', 'burp', 'vomit', 'posset', 'spit up',
+          'thrush', 'rash', 'eczema', 'cradle cap', 'fontanelle', 'jaundice',
+          'daycare', 'childcare', 'nanny', 'creche', 'kindy', 'sleep school',
+          'settle', 'settling', 'soothe', 'soothing', 'cry', 'crying',
+          'fuss', 'fussy', 'wakeful', 'sleep regression', '4 month',
+          '6 week check', 'her 6 week', 'his 6 week', 'she only sleeps',
+          'he only sleeps', 'poo explosion', 'wet nappy', 'dry nappy',
+          'did she pee', 'did he pee', 'pee', 'poo', 'milk',
+          'left or right', 'left side', 'right side', 'last fed',
+          'which side', 'which boob', 'left breast', 'right breast'
+        ]],
+        ['HOME', [
+          'dishwasher', 'dishes', 'plates', 'cups', 'laundry', 'washing',
+          'wash', 'dry', 'dryer', 'fold', 'folding', 'ironing', 'clean',
+          'cleaning', 'vacuum', 'vacuuming', 'mop', 'sweep', 'tidy', 'mess',
+          'messy', 'tip', 'declutter', 'kitchen', 'bathroom', 'toilet',
+          'bedroom', 'lounge', 'living', 'garden', 'yard', 'lawn', 'mow',
+          'bins', 'rubbish', 'trash', 'recycling', 'defrost', 'dinner',
+          'lunch', 'breakfast', 'meal', 'meal prep', 'groceries', 'shopping',
+          'woolworths', 'coles', 'aldi', 'costco', 'deliveries', 'parcel',
+          'post', 'mail', 'package', 'fridge', 'pantry', 'freezer', 'oven',
+          'stove', 'pots', 'pans', 'sort', 'organise', 'organize'
+        ]],
+        ['WORK', [
+          'work', 'job', 'career', 'employer', 'manager', 'boss', 'colleague',
+          'team', 'office', 'email', 'emails', 'slack', 'teams', 'meeting',
+          'zoom', 'deadline', 'project', 'client', 'presentation', 'report',
+          'return', 'returning', 'back to work', 'parental leave',
+          'maternity leave', 'mat leave', 'kit days', 'keep in touch',
+          'lawyer', 'accountant', 'tax', 'ato', 'super', 'superannuation',
+          'rego', 'registration', 'insurance', 'bills', 'bill', 'invoice',
+          'payment', 'mortgage', 'rent', 'electricity', 'gas', 'internet',
+          'phone bill', 'council', 'rates', 'medicare', 'paperwork', 'form',
+          'application', 'due date', 'appointment', 'make an appointment',
+          'booking', 'reschedule', 'cancel', 'confirm'
+        ]],
+        ['RELATIONSHIPS', [
+          'mum', 'mums', 'mom', 'moms', 'mummy', 'dad', 'daddy', 'parents', 'sister',
+          'brother', 'sibling', 'grandma', 'grandpa', 'nonna', 'nonno',
+          'teta', 'jiddo', 'family', 'in-laws', 'mother-in-law',
+          'father-in-law', 'mil', 'fil', 'partner', 'husband', 'wife',
+          'hubby', 'fiance', 'boyfriend', 'girlfriend', 'friend', 'friends',
+          'mate', 'bestie', 'neighbour', 'neighbor', 'group chat',
+          'missed her birthday', 'missed his birthday', 'her birthday',
+          'his birthday', 'their birthday', 'forgot to call',
+          'forgot to text', 'forgot to message', "haven't called",
+          'havent called', "haven't seen", 'havent seen', 'visit',
+          'visiting', 'hosting'
+        ]],
+        ['LET_GO', [
+          'terrible', 'awful', 'worst', 'fraud', 'fake', 'bad mum',
+          'bad mom', 'bad mother', 'bad parent', 'lazy', 'useless',
+          'worthless', 'hopeless', 'pathetic', 'scared', 'terrified',
+          'frightened', "can't cope", 'cant cope', 'cannot cope',
+          'drowning', 'sinking', 'suffocating', 'surviving',
+          'barely surviving', 'hate', 'hating', 'miss', 'missing',
+          'lonely', 'alone', 'isolated', 'ashamed', 'embarrassed', 'guilty',
+          'guilt', 'shame', 'not enough', 'not doing enough', 'not a good',
+          'falling apart', 'going crazy', 'going mad', 'losing my mind',
+          'lose my mind', 'going to lose', 'losing it', 'lost my mind',
+          'better mum', 'better mom', 'better mother', "can't keep up",
+          'cant keep up', 'overwhelmed', 'overwhelm',
+          'overwhelming', 'everyone tells me', 'everyone says',
+          'everyone is', 'why is everyone', 'why does everyone', 'why do i',
+          'what is wrong with me', "what's wrong with me",
+          'whats wrong with me', 'i should', "i shouldn't", 'im supposed to',
+          "i'm supposed to", 'im meant to', "i'm meant to", 'people say',
+          'they say', 'i wish', 'i hate', 'compare', 'comparing',
+          'instagram mums', 'perfect mum', 'perfect mom'
+        ]]
+      ];
+
+      // Combined phrases that signal mum-context — only override BABY → MY_BODY
+      // when BABY would have matched. Don't fire on their own.
+      const COMBINED_PHRASES = [
+        'i could cry', 'i feel', 'i miss', 'my body', 'my own', 'for me'
+      ];
+
+      // Self-judgement words that force LET_GO regardless of any other category
+      // match. Checked before the regular category loop so emotional thoughts
+      // like "i'm a terrible friend" don't get pulled into RELATIONSHIPS.
+      const LET_GO_OVERRIDE = [
+        'terrible', 'fraud', 'useless', 'awful', 'worst', 'bad mum', 'bad mom',
+        'falling apart', 'going crazy', 'going mad', 'guilty', 'guilt',
+        'better mum', 'better mom', 'better mother', "can't keep up",
+        'cant keep up'
+      ];
+
+      // Explicit relationship words that pull a thought out of BABY (where
+      // pronouns like "him"/"her" might falsely land it) into RELATIONSHIPS.
+      const RELATIONSHIPS_OVERRIDE = [
+        'dad', 'daddy', 'mum', 'mums', 'mom', 'moms', 'mummy', 'partner',
+        'husband', 'wife', 'hubby', 'friend', 'mate', 'sister', 'brother',
+        'in-law', 'fil', 'mil'
+      ];
+
+      // Display order (LET_GO renders separately, last). MY_BODY first now.
+      const CATEGORY_DISPLAY_ORDER = [
+        'MY_BODY', 'BABY', 'HOME', 'WORK', 'RELATIONSHIPS', 'OTHER'
+      ];
+      const CATEGORY_LABELS = {
+        MY_BODY: 'My body',
+        BABY: 'Baby & feeding',
+        HOME: 'Home & logistics',
+        WORK: 'Work & admin',
+        RELATIONSHIPS: 'Relationships',
+        OTHER: 'Other thoughts'
+      };
+
+      // Priority detection — urgency tiers. Highest tier a thought hits is
+      // the only one it counts in. Top 3 picks across tiers in this order.
+      // Self-care emergencies are ranked: eaten > drunk > slept > showered.
+      const PRIORITY_TIERS = [
+        ['medical', [
+          'doctor', 'gp', 'maternal health', 'appointment', 'check up',
+          'check-up', 'checkup', 'panda'
+        ]],
+        ['selfcare_eaten', ["haven't eaten", 'havent eaten']],
+        ['selfcare_drunk', ["haven't drunk", 'havent drunk']],
+        ['selfcare_slept', ["haven't slept", 'havent slept']],
+        ['selfcare_showered', ["haven't showered", 'havent showered']],
+        ['timebound', [
+          'today', 'tonight', 'tomorrow', 'this morning', 'this afternoon',
+          'this evening', 'right now', 'asap', 'urgent', 'due', 'due today',
+          'due tomorrow', 'due this week', 'forgot to call', 'forgot to book',
+          'need to book', 'need to call', 'running out of', 'out of nappies',
+          'out of formula', 'out of milk', 'out of food', 'deadline'
+        ]]
+      ];
+
+      // Reframes — keyword → gentle reframe. Order matters; first match wins.
+      // Prompt 4 will swap getReframe() for an async Claude API call.
+      const REFRAME_KEYWORDS = [
+        ['guilty',          "Guilt is the tax mothers pay for existing. You don't owe it."],
+        ['bad mum',         "You're here, trying to manage it all. That's the opposite of bad."],
+        ['terrible',        "Terrible mums don't worry about being terrible. The worry itself is proof you care."],
+        ['fraud',           "Imposter feelings show up when you've grown faster than you can update your self-image. You're not a fraud — you're new at this."],
+        ['failing',         "You're not failing. You're juggling things no one else can see."],
+        ['lazy',            "Lazy is what people call mothers who are recovering. You're not lazy — you're depleted."],
+        ['useless',         "You're keeping a tiny human alive. Useless is the last word for that."],
+        ['terrified',       "Fear shows up because the stakes are real. It doesn't mean you're failing."],
+        ['scared',          "Fear shows up because the stakes are real. It doesn't mean you're failing."],
+        ["can't cope",      "Not yet. Or not alone. That's different from can't."],
+        ['drowning',        "If you're drowning, you don't need to swim faster. You need someone to throw a rope. Who can you ask?"],
+        ['surviving',       "Surviving with a baby IS thriving. The bar moves later — not now."],
+        ['hate',            "Hate is grief in a louder voice. Underneath is something tender."],
+        ['lonely',          "Lonely is the most common feeling in early motherhood. You're not the only one feeling it tonight."],
+        ['ashamed',         "Shame thrives in silence. Whatever this is, name it to one person who loves you."],
+        ['not enough',      "You are doing enough. You are being enough. Full stop."],
+        ['falling apart',   "Falling apart is sometimes the body's way of asking for help. Listen to it."],
+        ['losing my mind',  "You're not losing your mind. You're sleep-deprived and stretched thin. Different thing."],
+        ['going crazy',     "You're not going crazy. You're in the most disorienting season of your life."],
+        ['why is everyone', "Other people's enjoy-every-moment is their highlight reel. Yours doesn't have to look like that."],
+        ['why do i',        "Some questions don't need an answer tonight. Just noticing them is enough."],
+        ['miss',            "Missing the old you isn't betrayal. Both can be true: you love this and you grieve that."]
+      ];
+      const DEFAULT_REFRAME = "Noticed. Named. Now let it sit lighter.";
+
+      // Lowercase + strip straight and curly apostrophes, so "haven't" matches
+      // "havent" and vice versa.
+      function normalize(s) {
+        return s.toLowerCase().replace(/['‘’]/g, '');
+      }
+
+      function escapeRegex(s) {
+        return s.replace(/[-.*+?^${}()|[\]\\]/g, '\\$&');
+      }
+
+      // Strict word-boundary match — no prefix matching. So "shower" matches
+      // only the exact word "shower", and "showered" must be listed separately.
+      // Multi-word keywords ("bad mum", "in-laws", "her 6 week") work too.
+      function buildKeywordRegex(keywordNormalised) {
+        return new RegExp('\\b' + escapeRegex(keywordNormalised) + '\\b');
+      }
+
+      // Pre-compile once so we don't rebuild regexes per item.
+      const COMPILED_CATEGORIES = CATEGORY_KEYWORDS.map(function (entry) {
+        return [entry[0], entry[1].map(function (kw) {
+          return buildKeywordRegex(normalize(kw));
+        })];
+      });
+      const COMPILED_COMBINED_PHRASES = COMBINED_PHRASES.map(function (kw) {
+        return buildKeywordRegex(normalize(kw));
+      });
+      const COMPILED_LET_GO_OVERRIDE = LET_GO_OVERRIDE.map(function (kw) {
+        return buildKeywordRegex(normalize(kw));
+      });
+      const COMPILED_RELATIONSHIPS_OVERRIDE = RELATIONSHIPS_OVERRIDE.map(function (kw) {
+        return buildKeywordRegex(normalize(kw));
+      });
+      const COMPILED_PRIORITY_TIERS = PRIORITY_TIERS.map(function (entry) {
+        return [entry[0], entry[1].map(function (kw) {
+          return buildKeywordRegex(normalize(kw));
+        })];
+      });
+      const COMPILED_REFRAMES = REFRAME_KEYWORDS.map(function (entry) {
+        return [buildKeywordRegex(normalize(entry[0])), entry[1]];
+      });
+
+      function countWords(s) {
+        return s.split(/\s+/).filter(Boolean).length;
+      }
+
+      // Split a fragment on commas, but only at commas where BOTH sides have
+      // ≥ 4 words. So "feel guilty about going back to work, should be a
+      // better mum" splits, but "i need to defrost the chicken, and then..."
+      // doesn't (right side is too short).
+      function splitOnCommasIfLongEnough(piece) {
+        if (piece.indexOf(',') === -1) return [piece];
+        const tokens = piece.split(',').map(function (t) { return t.trim(); });
+        const result = [];
+        let current = tokens[0];
+        for (let i = 1; i < tokens.length; i++) {
+          const next = tokens[i];
+          if (countWords(current) >= 4 && countWords(next) >= 4) {
+            result.push(current);
+            current = next;
+          } else {
+            // Don't split here — stitch back with the original comma.
+            current = current + ', ' + next;
+          }
+        }
+        if (current) result.push(current);
+        return result;
+      }
+
+      // Split on hard separators (.!?;\n), then on commas (with the 4-word
+      // rule above). After splitting, any fragment under 3 words gets merged
+      // back into the previous fragment, so we don't end up with stray
+      // two-word leftovers from a sloppy comma.
+      function splitItems(text) {
+        const hardPieces = text.split(/[.!?;\n]+/);
+        const all = [];
+        for (let i = 0; i < hardPieces.length; i++) {
+          const piece = hardPieces[i].trim();
+          if (!piece) continue;
+          const subParts = splitOnCommasIfLongEnough(piece);
+          for (let j = 0; j < subParts.length; j++) {
+            all.push(subParts[j]);
+          }
+        }
+        const merged = [];
+        for (let i = 0; i < all.length; i++) {
+          const fragment = all[i].trim();
+          if (!fragment) continue;
+          if (countWords(fragment) < 3 && merged.length > 0) {
+            merged[merged.length - 1] = merged[merged.length - 1] + ' ' + fragment;
+          } else {
+            merged.push(fragment);
+          }
+        }
+        return merged;
+      }
+
+      function classifyItem(lowerText) {
+        // LET_GO override: self-judgement words ("terrible", "fraud",
+        // "useless", etc.) always win — checked before regular categories so
+        // emotional thoughts don't get pulled into RELATIONSHIPS by "friend"
+        // or BABY by "him"/"her".
+        for (let i = 0; i < COMPILED_LET_GO_OVERRIDE.length; i++) {
+          if (COMPILED_LET_GO_OVERRIDE[i].test(lowerText)) return 'LET_GO';
+        }
+
+        let category = 'OTHER';
+        for (let i = 0; i < COMPILED_CATEGORIES.length; i++) {
+          const name = COMPILED_CATEGORIES[i][0];
+          const regexes = COMPILED_CATEGORIES[i][1];
+          let matched = false;
+          for (let j = 0; j < regexes.length; j++) {
+            if (regexes[j].test(lowerText)) {
+              category = name;
+              matched = true;
+              break;
+            }
+          }
+          if (matched) break;
+        }
+
+        // BABY tiebreakers — only fire when the regular classifier landed on
+        // BABY (typically via a pronoun like "him"/"her").
+        if (category === 'BABY') {
+          // Combined-phrase mum-context override: "i miss", "my body", etc.
+          for (let i = 0; i < COMPILED_COMBINED_PHRASES.length; i++) {
+            if (COMPILED_COMBINED_PHRASES[i].test(lowerText)) return 'MY_BODY';
+          }
+          // Explicit relationship word override: "dad", "husband", etc.
+          for (let i = 0; i < COMPILED_RELATIONSHIPS_OVERRIDE.length; i++) {
+            if (COMPILED_RELATIONSHIPS_OVERRIDE[i].test(lowerText)) return 'RELATIONSHIPS';
+          }
+        }
+
+        return category;
+      }
+
+      // Returns the highest-urgency tier name a thought matches, or null.
+      function priorityTierFor(lowerText) {
+        for (let i = 0; i < COMPILED_PRIORITY_TIERS.length; i++) {
+          const regexes = COMPILED_PRIORITY_TIERS[i][1];
+          for (let j = 0; j < regexes.length; j++) {
+            if (regexes[j].test(lowerText)) return COMPILED_PRIORITY_TIERS[i][0];
+          }
+        }
+        return null;
+      }
+
+      // Top 3: walk PRIORITY_TIERS in declared order — medical first, then
+      // ranked self-care (eaten > drunk > slept > showered), then time-bound.
+      // Within each tier, encounter order. Cap at 3.
+      function getPriorities(classifiedItems) {
+        const buckets = {};
+        for (let i = 0; i < COMPILED_PRIORITY_TIERS.length; i++) {
+          buckets[COMPILED_PRIORITY_TIERS[i][0]] = [];
+        }
+        for (let i = 0; i < classifiedItems.length; i++) {
+          const tier = priorityTierFor(classifiedItems[i].lower);
+          if (tier) buckets[tier].push(classifiedItems[i].text);
+        }
+        const out = [];
+        for (let i = 0; i < COMPILED_PRIORITY_TIERS.length; i++) {
+          const items = buckets[COMPILED_PRIORITY_TIERS[i][0]];
+          for (let j = 0; j < items.length; j++) out.push(items[j]);
+        }
+        return out.slice(0, 3);
+      }
+
+      // Emotional state is derived from the Let Go bucket — these are the
+      // self-judgement / overwhelm thoughts the keyword matcher already found.
+      function getEmotionalState(letGoCount) {
+        if (letGoCount >= 3) return 'heavy';
+        if (letGoCount >= 1) return 'tender';
+        return 'steady';
+      }
+
+      // Hardcoded keyword reframes from Prompt 3 — used when the API key is
+      // a placeholder, when the network call fails, or when the response is
+      // empty. The user never sees a raw error.
+      function getReframeFallback(itemText) {
+        const lower = normalize(itemText);
+        for (let i = 0; i < COMPILED_REFRAMES.length; i++) {
+          if (COMPILED_REFRAMES[i][0].test(lower)) return COMPILED_REFRAMES[i][1];
+        }
+        return DEFAULT_REFRAME;
+      }
+
+      // In-memory cache: same worry text → same reframe, so re-sorting the
+      // same dump (or sorting after navigating away and back) doesn't burn
+      // tokens. Only successful API responses are cached — fallbacks aren't,
+      // so a future sort gets a real shot at the API once connection returns.
+      const reframeCache = new Map();
+
+      // Async getReframe: hits Claude for a personalised reframe; falls back
+      // to keyword reframes on any failure. Signature is (string) => Promise<string>.
+      async function getReframe(itemText) {
+        if (reframeCache.has(itemText)) return reframeCache.get(itemText);
+
+        try {
+          const response = await fetch(REFRAME_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ worry: itemText })
+          });
+
+          if (!response.ok) {
+            throw new Error('Reframe API ' + response.status);
+          }
+
+          const data = await response.json();
+          const text = data && typeof data.reframe === 'string' ? data.reframe.trim() : '';
+          if (!text) throw new Error('Empty reframe response');
+
+          reframeCache.set(itemText, text);
+          return text;
+        } catch (err) {
+          console.warn('[reframe] API failed, using keyword fallback:', err);
+          return getReframeFallback(itemText);
+        }
+      }
+
+      // Kick off all reframe fetches in parallel. Each placeholder updates as
+      // its own promise resolves, so dots disappear individually rather than
+      // all at once when the slowest one finishes. Promise.all lets callers
+      // await total completion if they want.
+      function populateReframes(letGoItems) {
+        return Promise.all(letGoItems.map(function (text, i) {
+          return getReframe(text).then(function (reframe) {
+            const el = document.getElementById('letgo-reframe-' + i);
+            if (el) {
+              el.textContent = reframe;
+              // Trigger fade-in on text replacement.
+              el.classList.add('revealed');
+            }
+            return reframe;
+          });
+        }));
+      }
+
+      function escapeHtml(s) {
+        return String(s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      const SUBHEAD_BY_STATE = {
+        heavy:  "I see you're carrying a lot today. Let's set some of it down.",
+        tender: "Some of these are heavier than others. That's okay.",
+        steady: "Look at you, holding it all. Here's what's here."
+      };
+
+      const NUDGE_BY_STATE = {
+        heavy:
+          "Before you do anything else: drink a glass of water. Eat something. " +
+          "Sit for two minutes. The list will still be here.",
+        tender:
+          "You're doing more than you think. Pick one small kindness for yourself " +
+          "today — a coffee made slowly, five minutes outside, a phone call to a " +
+          "friend who gets it.",
+        steady:
+          "Look at you, holding it together. Tonight, give yourself ten minutes " +
+          "of nothing. You earned it."
+      };
+
+      function renderCalmView(result) {
+        const calmContent = document.getElementById('calmContent');
+        const calmSubhead = document.getElementById('calmSubhead');
+        const calmNameSlot = document.getElementById('calmNameSlot');
+
+        calmNameSlot.textContent = nameSlot.textContent;
+        calmSubhead.textContent = SUBHEAD_BY_STATE[result.emotional];
+
+        const parts = [];
+
+        // 1. Today's Priorities
+        if (result.priorities.length > 0) {
+          parts.push('<section class="calm-card priorities-card">');
+          parts.push('<h2 class="calm-card-heading">Top 3 for today.</h2>');
+          parts.push('<ol class="priorities-list">');
+          for (let i = 0; i < result.priorities.length; i++) {
+            parts.push('<li>' + escapeHtml(result.priorities[i]) + '</li>');
+          }
+          parts.push('</ol>');
+          parts.push('<p class="priorities-footer">Everything else can wait.</p>');
+          parts.push('</section>');
+        }
+
+        // 2. Per-category cards (BABY → WORK → HOME → SELF-CARE → DELEGATE → GENERAL)
+        for (let i = 0; i < CATEGORY_DISPLAY_ORDER.length; i++) {
+          const key = CATEGORY_DISPLAY_ORDER[i];
+          const items = result.buckets[key];
+          if (!items || items.length === 0) continue;
+          parts.push('<section class="calm-card">');
+          parts.push(
+            '<h2 class="calm-card-heading">' +
+              '<span class="icon-placeholder" aria-hidden="true"></span>' +
+              escapeHtml(CATEGORY_LABELS[key]) +
+            '</h2>'
+          );
+          parts.push('<ul class="calm-list">');
+          for (let j = 0; j < items.length; j++) {
+            parts.push('<li>' + escapeHtml(items[j]) + '</li>');
+          }
+          parts.push('</ul>');
+          parts.push('</section>');
+        }
+
+        // 3. LET GO card — render placeholder dots; reframes populate async.
+        if (result.letGo.length > 0) {
+          parts.push('<section class="calm-card letgo-card">');
+          parts.push('<h2 class="calm-card-heading">Things to let go.</h2>');
+          parts.push('<p class="letgo-subtitle">These are the ones I want you to put down. Tap any one for a kinder thought.</p>');
+          parts.push('<ul class="letgo-list">');
+          for (let i = 0; i < result.letGo.length; i++) {
+            parts.push(
+              '<li class="letgo-item">' +
+                '<p class="letgo-original">' + escapeHtml(result.letGo[i]) + '</p>' +
+                '<p class="letgo-reframe" id="letgo-reframe-' + i + '">' +
+                  '<span class="reframe-loading" aria-label="Generating reframe">' +
+                    '<span class="reframe-loading-dot"></span>' +
+                  '</span>' +
+                '</p>' +
+              '</li>'
+            );
+          }
+          parts.push('</ul>');
+          parts.push('</section>');
+        }
+
+        // 4. Self-care nudge
+        parts.push(
+          '<section class="nudge-card"><p>' +
+            escapeHtml(NUDGE_BY_STATE[result.emotional]) +
+          '</p></section>'
+        );
+
+        // 5. PANDA helpline — heavy state only
+        if (result.emotional === 'heavy') {
+          parts.push(
+            '<section class="panda-card">' +
+              '<h2 class="panda-heading">If today feels too heavy:</h2>' +
+              '<p class="panda-body">PANDA&rsquo;s helpline is for any mum who needs to talk. Free, judgement-free.</p>' +
+              '<a class="panda-link" href="tel:1300726306">Call PANDA — 1300 726 306</a>' +
+            '</section>'
+          );
+        }
+
+        calmContent.innerHTML = parts.join('');
+
+        // Now that placeholders are in the DOM, kick off the parallel
+        // reframe fetches. Each pulse-dot is replaced individually as its
+        // promise resolves; failures fall back to keyword reframes silently.
+        if (result.letGo.length > 0) {
+          populateReframes(result.letGo);
+        }
+      }
+
+      function renderCalmEmpty() {
+        const calmContent = document.getElementById('calmContent');
+        const calmSubhead = document.getElementById('calmSubhead');
+        const calmNameSlot = document.getElementById('calmNameSlot');
+        if (calmNameSlot) calmNameSlot.textContent = nameSlot.textContent;
+        if (calmSubhead) calmSubhead.textContent = "It's quiet here for now.";
+        if (!calmContent) return;
+        calmContent.innerHTML =
+          '<section class="calm-empty">' +
+            '<svg width="80" height="60" viewBox="0 0 80 60" fill="none" ' +
+              'stroke="#D4A574" stroke-width="1.5" stroke-linecap="round" ' +
+              'stroke-linejoin="round" aria-hidden="true" style="margin: 0 auto; display: block;">' +
+              '<path d="M40 8 C 36 22, 35 38, 38 54" />' +
+              '<ellipse cx="28" cy="20" rx="8" ry="3.5" transform="rotate(-25 28 20)" />' +
+              '<ellipse cx="52" cy="22" rx="8" ry="3.5" transform="rotate(22 52 22)" />' +
+              '<ellipse cx="26" cy="38" rx="9" ry="4" transform="rotate(-18 26 38)" />' +
+              '<ellipse cx="54" cy="40" rx="9" ry="4" transform="rotate(18 54 40)" />' +
+            '</svg>' +
+            '<h2 class="calm-empty-heading">Nothing dumped yet</h2>' +
+            '<p class="calm-empty-body">' +
+              'Start with one thought &mdash; even just one.' +
+            '</p>' +
+            '<button type="button" class="calm-empty-cta" id="calmEmptyCta" ' +
+              'aria-label="Go to brain dump">Go to brain dump &rarr;</button>' +
+          '</section>';
+        const cta = document.getElementById('calmEmptyCta');
+        if (cta) cta.addEventListener('click', showBrainDump);
+      }
+
+      function sortThoughts() {
+        const value = dumpText.value;
+        if (!value || !value.trim()) {
+          // Empty dump → graceful empty state on Calm View instead of nothing.
+          renderCalmEmpty();
+          showCalmView();
+          announce('Calm view ready');
+          return;
+        }
+        safeSet(DUMP_KEY, value);
+
+        const items = splitItems(value);
+        if (items.length === 0) {
+          renderCalmEmpty();
+          showCalmView();
+          announce('Calm view ready');
+          return;
+        }
+
+        const classified = items.map(function (t) {
+          const lower = normalize(t);
+          return { text: t, lower: lower, category: classifyItem(lower) };
+        });
+
+        const buckets = {};
+        const letGo = [];
+        for (let i = 0; i < classified.length; i++) {
+          const it = classified[i];
+          if (it.category === 'LET_GO') {
+            letGo.push(it.text);
+            continue;
+          }
+          if (!buckets[it.category]) buckets[it.category] = [];
+          buckets[it.category].push(it.text);
+        }
+
+        const result = {
+          priorities: getPriorities(classified),
+          buckets: buckets,
+          letGo: letGo,
+          emotional: getEmotionalState(letGo.length)
+        };
+
+        console.log('[sort] result:\n' + JSON.stringify(result, null, 2));
+
+        // Brief "Sorting your thoughts..." overlay before revealing the calm view.
+        const sortingOverlay = document.getElementById('sortingOverlay');
+        if (sortingOverlay) {
+          sortingOverlay.setAttribute('aria-hidden', 'false');
+          sortingOverlay.classList.add('visible');
+        }
+
+        setTimeout(function () {
+          renderCalmView(result);
+          showCalmView();
+          if (sortingOverlay) {
+            sortingOverlay.classList.remove('visible');
+            sortingOverlay.setAttribute('aria-hidden', 'true');
+          }
+          announce('Calm view ready');
+        }, 850);
+      }
+
+      function showCalmView() {
+        showScreen('calmView');
+        window.scrollTo(0, 0);
+      }
+
+      function startFresh() {
+        dumpText.value = '';
+        safeSet(DUMP_KEY, '');
+        updateDumpUI();
+        showBrainDump();
+      }
+
+      // ---------- Voice (Web Speech API) ----------
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+      let recognition = null;
+      let isRecording = false;
+      let micDenied = false;
+      let silenceTimer = null;
+      let hardCapTimer = null;
+      let extendedMode = safeGet(MIC_EXTENDED_KEY) === 'true';
+
+      function setExtendedVisual() {
+        if (extendedMode) {
+          micBtn.classList.add('extended');
+        } else {
+          micBtn.classList.remove('extended');
+        }
+      }
+
+      const micStatusText = micDebug
+        ? micDebug.querySelector('.mic-status-text')
+        : null;
+      let savedFadeTimer = null;
+
+      // setDebug(state, text)
+      //   state: 'listening' | 'saved' | null  (null = plain text or empty)
+      function setDebug(state, text) {
+        if (!micDebug) return;
+        if (savedFadeTimer) {
+          clearTimeout(savedFadeTimer);
+          savedFadeTimer = null;
+        }
+        micDebug.classList.remove('listening', 'saved');
+        // Force a reflow so re-applying the same state class restarts its animation.
+        void micDebug.offsetWidth;
+        if (state) micDebug.classList.add(state);
+        if (micStatusText) micStatusText.textContent = text || '';
+
+        if (state === 'saved') {
+          savedFadeTimer = setTimeout(function () {
+            savedFadeTimer = null;
+            // After the fade, return to "Listening..." if still recording, else clear.
+            if (isRecording) {
+              setDebug('listening', 'Listening...');
+            } else {
+              setDebug(null, '');
+            }
+          }, 1000);
+        }
+      }
+
+      function appendTranscript(text) {
+        if (!text) return;
+        const current = dumpText.value;
+        const sep = current && !/\s$/.test(current) ? ' ' : '';
+        dumpText.value = current + sep + text;
+        updateDumpUI();
+        scheduleSave();
+      }
+
+      function clearSilenceTimer() {
+        if (silenceTimer) {
+          clearTimeout(silenceTimer);
+          silenceTimer = null;
+        }
+      }
+
+      function resetSilenceTimer() {
+        if (extendedMode) return; // no silence timeout in extended mode
+        clearSilenceTimer();
+        silenceTimer = setTimeout(function () {
+          stopRecognition();
+        }, SILENCE_MS);
+      }
+
+      function clearHardCapTimer() {
+        if (hardCapTimer) {
+          clearTimeout(hardCapTimer);
+          hardCapTimer = null;
+        }
+      }
+
+      function startHardCapTimer() {
+        clearHardCapTimer();
+        hardCapTimer = setTimeout(function () {
+          stopRecognition();
+        }, EXTENDED_HARD_CAP_MS);
+      }
+
+      function setMicState(recording) {
+        isRecording = recording;
+        if (recording) {
+          micBtn.classList.add('recording');
+          micBtn.setAttribute('aria-label', 'Stop voice recording');
+          micBtn.setAttribute('aria-pressed', 'true');
+        } else {
+          micBtn.classList.remove('recording');
+          micBtn.setAttribute('aria-label', 'Start voice recording');
+          micBtn.setAttribute('aria-pressed', 'false');
+        }
+      }
+
+      function buildRecognition() {
+        const r = new SpeechRecognition();
+        r.continuous = true;
+        r.interimResults = true;
+        r.lang = 'en-AU';
+
+        r.onstart = function () {
+          console.log('[speech] onstart — recognition service is listening');
+          setDebug('listening', 'Listening...');
+        };
+
+        r.onresult = function (event) {
+          console.log('[speech] onresult', {
+            resultIndex: event.resultIndex,
+            total: event.results.length
+          });
+          resetSilenceTimer();
+          let interimText = '';
+          let finalAppended = false;
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const result = event.results[i];
+            const transcript = (result[0] && result[0].transcript) || '';
+            if (result.isFinal) {
+              console.log('[speech] final:', JSON.stringify(transcript));
+              const trimmed = transcript.trim();
+              if (trimmed) {
+                appendTranscript(trimmed);
+                finalAppended = true;
+              }
+            } else {
+              console.log('[speech] interim:', JSON.stringify(transcript));
+              interimText += transcript;
+            }
+          }
+          // Final wins this event; interim only sets state if no final was appended.
+          if (finalAppended) {
+            setDebug('saved', 'Saved ✓');
+          } else {
+            const interimTrimmed = interimText.trim();
+            if (interimTrimmed) {
+              setDebug(null, 'Heard: ' + interimTrimmed);
+            }
+          }
+        };
+
+        r.onerror = function (event) {
+          console.warn('[speech] onerror:', event.error, event.message || '');
+          setDebug(null, 'Error: ' + event.error);
+          if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+            micDenied = true;
+            micDeniedMsg.hidden = false;
+            micBtn.disabled = true;
+            micBtn.setAttribute(
+              'title',
+              'Mic access denied in your browser.'
+            );
+            const hint = document.getElementById('voiceFailHint');
+            if (hint && !dumpText.value.trim()) hint.hidden = false;
+          }
+          // Other errors ('no-speech', 'aborted', 'network', 'audio-capture')
+          // trigger onend; the auto-restart there handles them.
+        };
+
+        r.onend = function () {
+          console.log('[speech] onend — wantRecording=' + wantRecording +
+            ', micDenied=' + micDenied);
+          clearSilenceTimer();
+          clearHardCapTimer();
+          // Chrome auto-stops SpeechRecognition every ~60s even with continuous=true.
+          // If the user hasn't manually stopped, restart so recording feels continuous.
+          if (wantRecording && !micDenied) {
+            console.log('[speech] auto-restarting recognition');
+            try {
+              recognition.start();
+              // Keep isRecording true; onstart will re-emit "Listening..."
+              if (extendedMode) {
+                startHardCapTimer();
+              } else {
+                resetSilenceTimer();
+              }
+              return;
+            } catch (e) {
+              console.warn('[speech] restart failed:', e);
+            }
+          }
+          setMicState(false);
+          setDebug(null, '');
+          wantRecording = false;
+        };
+
+        return r;
+      }
+
+      let wantRecording = false;
+
+      function startRecognition() {
+        if (!SpeechRecognition) {
+          console.warn('[speech] SpeechRecognition API not supported in this browser');
+          return;
+        }
+        if (micDenied) {
+          console.warn('[speech] mic previously denied — cannot start');
+          return;
+        }
+        if (isRecording) {
+          console.log('[speech] already recording — ignoring start');
+          return;
+        }
+        if (!recognition) recognition = buildRecognition();
+        try {
+          wantRecording = true;
+          console.log('[speech] calling recognition.start() — lang=' + recognition.lang +
+            ', continuous=' + recognition.continuous +
+            ', interimResults=' + recognition.interimResults);
+          recognition.start();
+          setMicState(true);
+          if (extendedMode) {
+            startHardCapTimer();
+          } else {
+            resetSilenceTimer();
+          }
+        } catch (e) {
+          console.warn('[speech] start() threw:', e);
+          wantRecording = false;
+          setMicState(false);
+          setDebug(null, 'Error: ' + (e && e.message ? e.message : 'start failed'));
+        }
+      }
+
+      function stopRecognition() {
+        console.log('[speech] stopRecognition called — isRecording=' + isRecording);
+        wantRecording = false;
+        clearSilenceTimer();
+        clearHardCapTimer();
+        if (recognition && isRecording) {
+          try { recognition.stop(); } catch (e) {
+            console.warn('[speech] stop() threw:', e);
+          }
+        }
+      }
+
+      function toggleRecording() {
+        if (isRecording) {
+          stopRecognition();
+        } else {
+          startRecognition();
+        }
+      }
+
+      // Mic support / init
+      if (!SpeechRecognition) {
+        micBtn.disabled = true;
+        micBtn.setAttribute(
+          'title',
+          'Voice input works best in Chrome or Edge'
+        );
+        micBtn.setAttribute('aria-label', 'Voice input not supported in this browser');
+        const hint = document.getElementById('voiceFailHint');
+        if (hint) hint.hidden = false;
+      }
+
+      // ---------- Settings modal ----------
+      let lastFocusBeforeModal = null;
+
+      function focusableIn(container) {
+        return Array.prototype.slice.call(
+          container.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          )
+        ).filter(function (el) { return !el.disabled && el.offsetParent !== null; });
+      }
+
+      function openSettings() {
+        lastFocusBeforeModal = document.activeElement;
+        settingsOverlay.hidden = false;
+        // Force reflow, then add visible class for transition.
+        void settingsOverlay.offsetWidth;
+        settingsOverlay.classList.add('visible');
+        setTimeout(function () {
+          const focusables = focusableIn(settingsOverlay);
+          if (focusables.length) focusables[0].focus();
+        }, 0);
+      }
+
+      function closeSettings() {
+        settingsOverlay.classList.remove('visible');
+        settingsOverlay.hidden = true;
+        if (lastFocusBeforeModal && typeof lastFocusBeforeModal.focus === 'function') {
+          lastFocusBeforeModal.focus();
+        }
+      }
+
+      function settingsIsOpen() {
+        return !settingsOverlay.hidden;
+      }
+
+      function setExtendedMode(on) {
+        extendedMode = !!on;
+        extendedToggle.setAttribute('aria-checked', extendedMode ? 'true' : 'false');
+        safeSet(MIC_EXTENDED_KEY, extendedMode ? 'true' : 'false');
+        setExtendedVisual();
+        // If recording is live, swap timers to match new mode.
+        if (isRecording) {
+          if (extendedMode) {
+            clearSilenceTimer();
+            startHardCapTimer();
+          } else {
+            clearHardCapTimer();
+            resetSilenceTimer();
+          }
+        }
+      }
+
+      // Initial state from localStorage
+      extendedToggle.setAttribute('aria-checked', extendedMode ? 'true' : 'false');
+      setExtendedVisual();
+
+      // Restore brain dump text
+      const storedDump = safeGet(DUMP_KEY);
+      if (storedDump) {
+        dumpText.value = storedDump;
+      }
+      updateDumpUI();
+
+      // ---------- Wire up events ----------
+      pourCta.addEventListener('click', showBrainDump);
+
+      dumpText.addEventListener('input', function () {
+        updateDumpUI();
+        scheduleSave();
+      });
+
+      sortCta.addEventListener('click', function () {
+        if (sortCta.disabled) return;
+        sortThoughts();
+      });
+
+      micBtn.addEventListener('click', function () {
+        if (micBtn.disabled) return;
+        toggleRecording();
+      });
+
+      settingsGear.addEventListener('click', openSettings);
+      settingsClose.addEventListener('click', closeSettings);
+      settingsOverlay.addEventListener('click', function (e) {
+        if (e.target === settingsOverlay) closeSettings();
+      });
+
+      extendedToggle.addEventListener('click', function () {
+        setExtendedMode(extendedToggle.getAttribute('aria-checked') !== 'true');
+      });
+
+      document.addEventListener('keydown', function (e) {
+        // ESC: close settings modal, or close any expanded <details> on the
+        // currently-active screen (phase cards, partner sub-sections).
+        if (e.key === 'Escape') {
+          if (settingsIsOpen()) {
+            e.preventDefault();
+            closeSettings();
+            return;
+          }
+          const activeScreen = document.querySelector('.screen.active');
+          if (activeScreen) {
+            const openDetails = activeScreen.querySelectorAll('details[open]');
+            if (openDetails.length > 0) {
+              e.preventDefault();
+              openDetails.forEach(function (d) { d.open = false; });
+              return;
+            }
+          }
+          return;
+        }
+
+        if (e.key !== 'Tab') return;
+        if (!settingsIsOpen()) return;
+
+        // Focus trap inside settings modal
+        const focusables = focusableIn(settingsOverlay);
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement;
+
+        if (e.shiftKey && active === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      });
+
+      // Bottom nav — wired across all screens (each screen has its own nav).
+      navTabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          const target = tab.getAttribute('data-nav');
+          if (target === 'home') {
+            stopRecognition();
+            showScreen('landing');
+            window.scrollTo(0, 0);
+          } else if (target === 'dump') {
+            showBrainDump();
+          } else if (target === 'calm') {
+            // Re-sort current dump and show calm view; no-op if dump is empty.
+            sortThoughts();
+          } else if (target === 'recovery') {
+            showRecovery();
+          }
+        });
+      });
+
+      const startFreshBtn = document.getElementById('startFreshBtn');
+      startFreshBtn.addEventListener('click', startFresh);
+
+      // ---------- Recovery Corner ----------
+      const BIRTH_TYPE_KEY = 'mumma_birth_type';
+      const birthSelector = document.getElementById('birthSelector');
+      const recoveryContent = document.getElementById('recoveryContent');
+      const phaseCardsEl = document.getElementById('phaseCards');
+      const birthCards = document.querySelectorAll('.birth-card');
+      const changeBirthBtn = document.getElementById('changeBirthBtn');
+
+      // Phase data — exercise content from spec.
+      const PHASE_DATA = [
+        {
+          title: 'Weeks 0–2 · Gentle recovery',
+          both: [
+            {
+              name: 'Diaphragmatic breathing',
+              desc: 'Lie comfortably. Breathe in slowly through your nose, letting your belly rise. Exhale gently through your mouth.',
+              reps: '5 deep breaths · 3 times daily'
+            },
+            {
+              name: 'Pelvic floor activation',
+              desc: 'Gently squeeze as if stopping the flow of urine. Hold for a count of 5, then fully release.',
+              reps: '10 reps · 2 times daily · Stop if painful'
+            },
+            {
+              name: 'Gentle walking',
+              desc: 'Start with a short walk around your home or garden. Increase distance only when comfortable.',
+              reps: '5–10 minutes · daily · with pram if you like'
+            }
+          ],
+          vaginal: [
+            {
+              name: 'Pelvic tilts (lying)',
+              desc: 'Lie on your back with knees bent. Gently flatten your lower back into the floor by tilting your pelvis. Hold briefly.',
+              reps: '10 tilts · 2 times daily'
+            }
+          ],
+          csection: [
+            {
+              name: 'Ankle circles',
+              desc: 'While resting in bed, gently circle your ankles in both directions. Helps circulation after surgery.',
+              reps: '10 circles each direction · hourly while resting'
+            },
+            {
+              name: 'Supported standing',
+              desc: 'Use furniture or your partner for support. Stand for short periods, increasing gradually.',
+              reps: 'As tolerated · gentle and slow'
+            }
+          ],
+          partner: [
+            {
+              name: 'Supported walks',
+              desc: 'Partner offers arm support while you walk, especially helpful for C-section recovery in the first week.'
+            }
+          ]
+        },
+        {
+          title: 'Weeks 2–6 · Rebuilding your foundation',
+          both: [
+            {
+              name: 'Pelvic floor (progression)',
+              desc: 'Increase hold to 8–10 seconds. Add quick squeezes: squeeze and release rapidly.',
+              reps: '10 slow holds + 10 quick flicks · 3 times daily'
+            },
+            {
+              name: 'Walking (progression)',
+              desc: 'Gradually increase to a 20–30 minute walk at a comfortable pace. Notice your energy and stop if fatigued.',
+              reps: '20–30 minutes · daily'
+            },
+            {
+              name: 'Cat-Cow stretch',
+              desc: 'On all fours, arch your back upward (cat), then gently dip it downward (cow). Move slowly with your breath.',
+              reps: '5 cycles · 2 times daily'
+            },
+            {
+              name: 'Glute bridges',
+              desc: 'Lie on your back, knees bent, feet flat. Lift your hips toward the ceiling. Squeeze your glutes at the top.',
+              reps: '10 reps, hold 5 seconds each · 2 sets'
+            }
+          ],
+          vaginal: [
+            {
+              name: 'Wall push-ups',
+              desc: 'Stand arm’s length from a wall. Place hands shoulder-width on the wall. Slowly bend elbows, then push back.',
+              reps: '10 reps · 2 sets'
+            }
+          ],
+          csection: [
+            {
+              name: 'Deep abdominal activation',
+              desc: 'Lying down, gently draw your belly button toward your spine as you exhale. Hold without holding your breath.',
+              reps: '10 reps, hold 5 seconds · 2 times daily'
+            }
+          ],
+          csectionNote: 'Avoid sit-ups, crunches, and lifting anything heavier than your baby until cleared by your doctor.',
+          partner: [
+            {
+              name: 'Partner-supported squats',
+              desc: 'Hold hands with your partner for balance. Slowly lower into a shallow squat. Rise together.',
+              reps: '8 reps · 2 sets'
+            }
+          ]
+        },
+        {
+          title: 'Weeks 6–12 · Building strength',
+          clearanceNote: 'Before starting Phase 3, get clearance from your GP or obstetrician at your 6-week check-up.',
+          both: [
+            {
+              name: 'Bodyweight squats',
+              desc: 'Feet shoulder-width apart. Lower as if sitting into a chair. Keep weight in your heels.',
+              reps: '12 reps · 2 sets'
+            },
+            {
+              name: 'Modified plank (on knees)',
+              desc: 'On your knees and forearms, keep your body in a straight line from head to knees. Engage your core gently.',
+              reps: 'Hold 15–20 seconds · 3 reps'
+            },
+            {
+              name: 'Walking (progression)',
+              desc: 'Build to 30 minutes at a brisk pace. Can include hills if comfortable.',
+              reps: '30 minutes · daily'
+            },
+            {
+              name: 'Resistance band seated rows',
+              desc: 'Sit with legs extended, band around feet. Pull band toward your waist, squeezing shoulder blades together.',
+              reps: '10 reps · 2 sets · light resistance'
+            }
+          ],
+          vaginalNote: 'Can progress to: low-impact aerobics, swimming (if bleeding stopped 7+ days), stationary cycling.',
+          csection: [
+            {
+              name: 'Dead bugs (alternative to crunches)',
+              desc: 'Lying on back, alternate arm and leg extensions slowly.',
+              reps: '8 reps each side · 2 sets'
+            }
+          ],
+          csectionNote: 'Continue avoiding high-impact until 12 weeks minimum. Swimming only after 12 weeks and full wound healing.',
+          partner: [
+            {
+              name: 'Tandem pram walk',
+              desc: 'One partner pushes the pram, the other does walking lunges alongside. Swap every 5 minutes.',
+              reps: '15–20 minutes · 2–3 times per week'
+            }
+          ]
+        }
+      ];
+
+      const CHEVRON_SVG =
+        '<svg class="phase-card-chevron" width="18" height="18" viewBox="0 0 24 24" ' +
+        'fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" ' +
+        'stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+
+      const PARTNER_CHEVRON_SVG =
+        '<svg class="partner-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+        'stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        '<polyline points="6 9 12 15 18 9"></polyline></svg>';
+
+      // Two leaves on a stem — paired-leaf icon for partner sub-sections.
+      const PARTNER_LEAF_SVG =
+        '<svg class="partner-leaf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+        'stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        '<path d="M12 4 V 20" />' +
+        '<path d="M12 11 C 8 11, 6 9, 5 6 C 8 6, 11 8, 12 11 Z" />' +
+        '<path d="M12 11 C 16 11, 18 9, 19 6 C 16 6, 13 8, 12 11 Z" />' +
+        '</svg>';
+
+      function renderExercise(ex) {
+        let html = '<div class="exercise">';
+        html += '<p class="exercise-name">' + escapeHtml(ex.name) + '</p>';
+        html += '<p class="exercise-desc">' + escapeHtml(ex.desc) + '</p>';
+        if (ex.reps) {
+          html += '<p class="exercise-reps">' + escapeHtml(ex.reps) + '</p>';
+        }
+        html += '</div>';
+        return html;
+      }
+
+      function renderExerciseGroup(title, exercises, note) {
+        if ((!exercises || exercises.length === 0) && !note) return '';
+        let html = '<div class="exercise-group">';
+        if (title) {
+          html += '<p class="exercise-group-title">' + escapeHtml(title) + '</p>';
+        }
+        if (exercises && exercises.length > 0) {
+          for (let i = 0; i < exercises.length; i++) {
+            html += renderExercise(exercises[i]);
+          }
+        }
+        if (note) {
+          html += '<p class="exercise-note">' + escapeHtml(note) + '</p>';
+        }
+        html += '</div>';
+        return html;
+      }
+
+      function renderPartnerSection(items) {
+        if (!items || items.length === 0) return '';
+        let html = '<details class="partner-section">';
+        html += '<summary class="partner-summary">' +
+          PARTNER_LEAF_SVG +
+          '<span class="partner-summary-title">With partner</span>' +
+          PARTNER_CHEVRON_SVG +
+        '</summary>';
+        html += '<div class="partner-body">';
+        for (let i = 0; i < items.length; i++) {
+          html += renderExercise(items[i]);
+        }
+        html += '</div>';
+        html += '</details>';
+        return html;
+      }
+
+      function renderPhaseCard(phase, birthType) {
+        let body = '';
+
+        if (phase.clearanceNote) {
+          body += '<div class="clearance-note">' +
+            escapeHtml(phase.clearanceNote) +
+          '</div>';
+        }
+
+        body += renderExerciseGroup('For both birth types', phase.both, null);
+
+        if (birthType === 'vaginal') {
+          body += renderExerciseGroup(
+            'Vaginal birth',
+            phase.vaginal || [],
+            phase.vaginalNote || null
+          );
+        } else if (birthType === 'csection') {
+          body += renderExerciseGroup(
+            'C-section',
+            phase.csection || [],
+            phase.csectionNote || null
+          );
+        }
+
+        body += renderPartnerSection(phase.partner);
+
+        return '<details class="phase-card">' +
+          '<summary class="phase-card-summary">' +
+            '<h2 class="phase-card-title">' + escapeHtml(phase.title) + '</h2>' +
+            CHEVRON_SVG +
+          '</summary>' +
+          '<div class="phase-card-body">' + body + '</div>' +
+        '</details>';
+      }
+
+      function renderPhases(birthType) {
+        const parts = [];
+        for (let i = 0; i < PHASE_DATA.length; i++) {
+          parts.push(renderPhaseCard(PHASE_DATA[i], birthType));
+        }
+        phaseCardsEl.innerHTML = parts.join('');
+      }
+
+      function setBirthType(value) {
+        safeSet(BIRTH_TYPE_KEY, value);
+        birthSelector.hidden = true;
+        recoveryContent.hidden = false;
+        renderPhases(value);
+      }
+
+      function showBirthSelector() {
+        birthSelector.hidden = false;
+        recoveryContent.hidden = true;
+        // Reset visual state on cards
+        birthCards.forEach(function (c) {
+          c.classList.remove('selected');
+          c.setAttribute('aria-checked', 'false');
+        });
+      }
+
+      function showRecovery() {
+        stopRecognition();
+        showScreen('recovery');
+        window.scrollTo(0, 0);
+        const stored = safeGet(BIRTH_TYPE_KEY);
+        if (stored === 'vaginal' || stored === 'csection') {
+          birthSelector.hidden = true;
+          recoveryContent.hidden = false;
+          renderPhases(stored);
+        } else {
+          showBirthSelector();
+        }
+      }
+
+      birthCards.forEach(function (card) {
+        card.addEventListener('click', function () {
+          const value = card.getAttribute('data-birth');
+          if (value !== 'vaginal' && value !== 'csection') return;
+          // Show the selected state briefly, then reveal content.
+          birthCards.forEach(function (c) {
+            c.classList.toggle('selected', c === card);
+            c.setAttribute('aria-checked', c === card ? 'true' : 'false');
+          });
+          setBirthType(value);
+        });
+      });
+
+      changeBirthBtn.addEventListener('click', function () {
+        try { localStorage.removeItem(BIRTH_TYPE_KEY); } catch (e) { /* ignore */ }
+        showBirthSelector();
+        window.scrollTo(0, 0);
+      });
+    })();
+  </script>
+</body>
+</html>
