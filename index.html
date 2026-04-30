@@ -142,12 +142,26 @@
     }
 
     .stat-number {
-      font-family: 'DM Serif Display', serif;
-      font-size: 80px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
       line-height: 1;
       color: var(--gold);
-      margin: 0 0 6px;
-      letter-spacing: -0.01em;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin: 0 0 8px;
+    }
+
+    /* Eyebrow microcopy — sits above the 71% stat */
+    .eyebrow {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-align: center;
+      margin: 0 0 18px;
     }
 
     .stat-flourish {
@@ -161,11 +175,11 @@
 
     .stat-caption {
       font-family: 'DM Sans', sans-serif;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 500;
-      letter-spacing: 0.22em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--gold);
+      color: #D4A574;
       margin: 0;
     }
 
@@ -178,7 +192,7 @@
 
     .subhead-1 {
       font-family: 'DM Serif Display', serif;
-      font-size: 22px;
+      font-size: 24px;
       line-height: 1.3;
       color: var(--charcoal);
       margin: 0 0 14px;
@@ -248,6 +262,47 @@
       margin: 14px 0 0;
     }
 
+    /* ---------- Landing hero copy (Option D) ---------- */
+    /* Pre-headline — small caps eyebrow above the eucalyptus sprig */
+    .pre-headline {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--warm-grey);
+      text-align: center;
+      margin: 0 0 24px;
+    }
+
+    /* Main hero heading — two stacked lines */
+    .hero-heading {
+      font-family: 'DM Serif Display', serif;
+      font-size: 80px;
+      line-height: 1.05;
+      font-weight: 400;
+      color: var(--charcoal);
+      text-align: center;
+      letter-spacing: -0.01em;
+      margin: 0 0 24px;
+    }
+
+    .hero-heading > span {
+      display: block;
+    }
+
+    /* Italic sub-line under the heading */
+    .hero-subline {
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 18px;
+      line-height: 1.5;
+      color: var(--warm-grey);
+      text-align: center;
+      max-width: 480px;
+      margin: 0 auto 32px;
+    }
+
     .cta:hover {
       box-shadow: 0 4px 12px rgba(61, 50, 41, 0.1);
     }
@@ -268,9 +323,12 @@
       margin-top: auto;
       padding-top: 48px;
       text-align: center;
-      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
       color: var(--warm-grey);
-      font-style: italic;
     }
 
     /* ---------- Name overlay ---------- */
@@ -1835,9 +1893,21 @@
       }
     }
 
-    @media (max-width: 520px) {
-      .stat-number {
+    @media (max-width: 768px) {
+      .hero-heading {
         font-size: 60px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .subhead-1 {
+        font-size: 20px;
+      }
+      .hero-heading {
+        font-size: 48px;
+      }
+      .hero-subline {
+        font-size: 16px;
       }
     }
 
@@ -1848,21 +1918,15 @@
       .greeting {
         font-size: 26px;
       }
-      .stat-number {
-        font-size: 52px;
-      }
-      .subhead-1 {
-        font-size: 20px;
-      }
     }
 
     /* ---------- Landing page entrance stagger ---------- */
     @media (prefers-reduced-motion: no-preference) {
       #landing.active .landing-greeting,
+      #landing.active .pre-headline,
       #landing.active .hero-illustration,
-      #landing.active .stat-block,
-      #landing.active .subhead-stack,
-      #landing.active .trust-microcopy,
+      #landing.active .hero-heading,
+      #landing.active .hero-subline,
       #landing.active .cta,
       #landing.active .cta-supportive,
       #landing.active .footer-line {
@@ -1870,10 +1934,10 @@
         animation: landing-rise 600ms ease-out forwards;
       }
       #landing.active .landing-greeting   { animation-delay:    0ms; }
+      #landing.active .pre-headline       { animation-delay:  125ms; }
       #landing.active .hero-illustration  { animation-delay:  250ms; }
-      #landing.active .stat-block         { animation-delay:  500ms; }
-      #landing.active .subhead-stack      { animation-delay:  750ms; }
-      #landing.active .trust-microcopy    { animation-delay: 1000ms; }
+      #landing.active .hero-heading       { animation-delay:  500ms; }
+      #landing.active .hero-subline       { animation-delay:  750ms; }
       #landing.active .cta                { animation-delay: 1180ms; }
       #landing.active .cta-supportive     { animation-delay: 1360ms; }
       #landing.active .footer-line        { animation-delay: 1520ms; }
@@ -1882,6 +1946,181 @@
     @keyframes landing-rise {
       from { opacity: 0; transform: translateY(8px); }
       to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---------- Cherry blossom petal layer (landing only) ---------- */
+    .petal-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 50;
+    }
+
+    .petal {
+      position: absolute;
+      display: block;
+      opacity: 0;
+      width: var(--size, 22px);
+      height: var(--size, 22px);
+      filter: drop-shadow(0 2px 6px rgba(180, 130, 100, 0.15));
+      --rotation: 0deg;
+      --drift-delay: 0ms;
+    }
+
+    .petal-1  { top:  4vh; left:  6vw; --size: 26px; --rotation:  25deg; --drift-delay:    0ms; }
+    .petal-2  { top:  9vh; left: 24vw; --size: 18px; --rotation: -15deg; --drift-delay:  130ms; }
+    .petal-3  { top:  5vh; left: 72vw; --size: 22px; --rotation:  35deg; --drift-delay:  260ms; }
+    .petal-4  { top:  3vh; left: 90vw; --size: 30px; --rotation: -25deg; --drift-delay:  390ms; }
+    .petal-5  { top: 30vh; left:  3vw; --size: 30px; --rotation:  60deg; --drift-delay:  520ms; }
+    .petal-6  { top: 36vh; left: 94vw; --size: 18px; --rotation: -55deg; --drift-delay:  650ms; }
+    .petal-7  { top: 52vh; left:  4vw; --size: 22px; --rotation:  15deg; --drift-delay:  780ms; }
+    .petal-8  { top: 56vh; left: 92vw; --size: 26px; --rotation:  35deg; --drift-delay:  910ms; }
+    .petal-9  { top: 80vh; left:  6vw; --size: 30px; --rotation: -25deg; --drift-delay: 1040ms; }
+    .petal-10 { top: 76vh; left: 90vw; --size: 22px; --rotation:  10deg; --drift-delay: 1170ms; }
+    .petal-11 { top: 93vh; left: 30vw; --size: 18px; --rotation:  50deg; --drift-delay: 1300ms; }
+    .petal-12 { top: 88vh; left: 72vw; --size: 26px; --rotation: -45deg; --drift-delay: 1430ms; }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .petal-layer.active .petal {
+        animation:
+          petal-drift-in 1570ms cubic-bezier(0.22, 0.61, 0.36, 1) var(--drift-delay) both,
+          petal-float 4s ease-in-out infinite calc(var(--drift-delay) + 1570ms);
+      }
+      .petal-layer.sweeping .petal {
+        animation: petal-sweep-out 800ms ease-in forwards;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .petal-layer.active .petal {
+        animation: petal-fade-in 200ms ease-out forwards;
+      }
+      .petal-layer.sweeping .petal {
+        animation: petal-fade-out 200ms ease-out forwards;
+      }
+    }
+
+    @keyframes petal-drift-in {
+      from {
+        opacity: 0;
+        transform: rotate(var(--rotation)) translate(50vw, -40vh);
+      }
+      to {
+        opacity: 1;
+        transform: rotate(var(--rotation)) translate(0, 0);
+      }
+    }
+
+    @keyframes petal-float {
+      0%, 100% { transform: rotate(var(--rotation)) translateY(0); }
+      50%      { transform: rotate(var(--rotation)) translateY(-3px); }
+    }
+
+    @keyframes petal-sweep-out {
+      from {
+        opacity: 1;
+        transform: rotate(var(--rotation)) translate(0, 0);
+      }
+      to {
+        opacity: 0;
+        transform: rotate(calc(var(--rotation) + 360deg)) translate(150vw, 0);
+      }
+    }
+
+    @keyframes petal-fade-in {
+      to { opacity: 1; }
+    }
+
+    @keyframes petal-fade-out {
+      to { opacity: 0; }
+    }
+
+    /* ---------- Ambient petals (Brain Dump / Calm View / Recovery) ----------
+       Quiet decoration — softer opacity than landing, no entry animation,
+       gentle float loop only. Pointer-events disabled so they never block
+       clicks. z-index 0 per spec. */
+    #brainDump, #calmView, #recovery {
+      position: relative;
+    }
+
+    .amb-petal {
+      position: absolute;
+      display: block;
+      pointer-events: none;
+      z-index: 0;
+      width: var(--size, 22px);
+      height: var(--size, 22px);
+      opacity: 0.6;
+      filter: drop-shadow(0 2px 6px rgba(180, 130, 100, 0.15));
+      transform: rotate(var(--rotation, 0deg));
+      --rotation: 0deg;
+      --float-delay: 0s;
+    }
+
+    /* Calm View — even quieter so AI reframes stay the hero. */
+    #calmView .amb-petal { opacity: 0.5; }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .amb-petal {
+        animation: petal-float 4s ease-in-out infinite var(--float-delay);
+      }
+    }
+
+    /* Brain Dump petal placements */
+    #brainDump .amb-petal-1 { top: 4vh;     left: 4vw;   --size: 26px; --rotation: -20deg; --float-delay: 0s; }
+    #brainDump .amb-petal-2 { top: 8vh;     right: 6vw;  --size: 18px; --rotation:  35deg; --float-delay: 0.6s; }
+    #brainDump .amb-petal-3 { top: 38vh;    right: 2vw;  --size: 22px; --rotation: -15deg; --float-delay: 1.2s; }
+    #brainDump .amb-petal-4 { bottom: 18vh; left: 3vw;   --size: 24px; --rotation:  50deg; --float-delay: 1.8s; }
+    #brainDump .amb-petal-5 { bottom: 22vh; right: 5vw;  --size: 18px; --rotation: -40deg; --float-delay: 2.4s; }
+    #brainDump .amb-petal-6 { bottom: 8vh;  left: 35vw;  --size: 16px; --rotation:  10deg; --float-delay: 3.0s; }
+
+    /* Calm View petal placements */
+    #calmView .amb-petal-1 { top: 2vh;     left: 5vw;   --size: 22px; --rotation:  25deg; --float-delay: 0s; }
+    #calmView .amb-petal-2 { top: 5vh;     right: 4vw;  --size: 26px; --rotation: -30deg; --float-delay: 0.6s; }
+    #calmView .amb-petal-3 { top: 12vh;    right: 1vw;  --size: 16px; --rotation:  60deg; --float-delay: 1.2s; }
+    #calmView .amb-petal-4 { bottom: 4vh;  left: 3vw;   --size: 18px; --rotation: -45deg; --float-delay: 1.8s; }
+    #calmView .amb-petal-5 { bottom: 6vh;  right: 6vw;  --size: 20px; --rotation:  15deg; --float-delay: 2.4s; }
+
+    /* Recovery Corner petal placements */
+    #recovery .amb-petal-1 { top: 3vh;     left: 8vw;   --size: 24px; --rotation:  40deg; --float-delay: 0s; }
+    #recovery .amb-petal-2 { top: 6vh;     right: 5vw;  --size: 18px; --rotation: -25deg; --float-delay: 0.6s; }
+    #recovery .amb-petal-3 { top: 24vh;    left: 2vw;   --size: 16px; --rotation:  55deg; --float-delay: 1.2s; }
+    #recovery .amb-petal-4 { top: 50vh;    right: 3vw;  --size: 22px; --rotation: -50deg; --float-delay: 1.8s; }
+    #recovery .amb-petal-5 { bottom: 16vh; left: 4vw;   --size: 20px; --rotation:  30deg; --float-delay: 2.4s; }
+    #recovery .amb-petal-6 { bottom: 10vh; right: 8vw;  --size: 26px; --rotation: -15deg; --float-delay: 3.0s; }
+
+    /* ---------- Landing leave (CTA → brain dump) ---------- */
+    @media (prefers-reduced-motion: no-preference) {
+      #landing.is-leaving .landing-greeting,
+      #landing.is-leaving .pre-headline,
+      #landing.is-leaving .hero-illustration,
+      #landing.is-leaving .hero-heading,
+      #landing.is-leaving .hero-subline,
+      #landing.is-leaving .cta,
+      #landing.is-leaving .cta-supportive,
+      #landing.is-leaving .footer-line {
+        animation: landing-fade-left 600ms ease-in forwards;
+      }
+    }
+
+    @keyframes landing-fade-left {
+      to {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+    }
+
+    /* ---------- Brain dump enter (CTA transition) ---------- */
+    @media (prefers-reduced-motion: no-preference) {
+      #brainDump.is-entering {
+        animation: dump-slide-in 500ms cubic-bezier(0.22, 0.61, 0.36, 1);
+      }
+    }
+
+    @keyframes dump-slide-in {
+      from { opacity: 0; transform: translateX(50px); }
+      to   { opacity: 1; transform: translateX(0); }
     }
   </style>
 </head>
@@ -1945,6 +2184,8 @@
       </h1>
     </header>
 
+    <p class="pre-headline">A quiet companion for the mental load</p>
+
     <!-- Hero botanical — single eucalyptus sprig, hand-drawn feel -->
     <svg
       class="hero-illustration"
@@ -1968,30 +2209,13 @@
       <ellipse cx="70" cy="118" rx="9" ry="3.5" transform="rotate(12 70 118)" />
     </svg>
 
-    <section class="hero" aria-labelledby="heroStat">
-      <div class="stat-block">
-        <p class="stat-number" id="heroStat" aria-label="Seventy-one percent">71%</p>
-        <svg
-          class="stat-flourish"
-          viewBox="0 0 140 14"
-          fill="none"
-          stroke="#D4A574"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          aria-hidden="true"
-        >
-          <path d="M8 8 C 32 3, 62 12, 96 5 S 130 9, 132 7" />
-        </svg>
-        <p class="stat-caption">Of household cognitive labour</p>
-      </div>
+    <section class="hero">
+      <p class="hero-heading">
+        <span>You&rsquo;re not failing.</span>
+        <span>You&rsquo;re carrying a lot.</span>
+      </p>
 
-      <div class="subhead-stack">
-        <p class="subhead-1">You&rsquo;re carrying so much.</p>
-        <p class="subhead-2">You&rsquo;re not failing. You&rsquo;re carrying a lot.</p>
-        <p class="subhead-3">MummaTech is a quiet place to put it down for a moment.</p>
-      </div>
-
-      <p class="trust-microcopy">Trusted by mums like you</p>
+      <p class="hero-subline">MummaTech is a soft place to put it down for a moment.</p>
 
       <button
         type="button"
@@ -2005,8 +2229,24 @@
       <p class="cta-supportive">It&rsquo;s okay to start with one thought.</p>
     </section>
 
-    <p class="footer-line">A quiet companion for the mental load.</p>
+    <p class="footer-line">Free &middot; Private &middot; No login</p>
   </main>
+
+  <!-- Cherry blossom petal layer (landing only) -->
+  <div class="petal-layer" id="petalLayer" aria-hidden="true">
+    <svg class="petal petal-1"  viewBox="0 0 24 24"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F0D5C8" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="petal petal-2"  viewBox="0 0 24 24"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F7E5DA" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="petal petal-3"  viewBox="0 0 24 24"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F3DDD2" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="petal petal-4"  viewBox="0 0 24 24"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F0D5C8" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="petal petal-5"  viewBox="0 0 24 24"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F3DDD2" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="petal petal-6"  viewBox="0 0 24 24"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F7E5DA" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="petal petal-7"  viewBox="0 0 24 24"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F0D5C8" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="petal petal-8"  viewBox="0 0 24 24"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F3DDD2" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="petal petal-9"  viewBox="0 0 24 24"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F7E5DA" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="petal petal-10" viewBox="0 0 24 24"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F0D5C8" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="petal petal-11" viewBox="0 0 24 24"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F3DDD2" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="petal petal-12" viewBox="0 0 24 24"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F7E5DA" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+  </div>
 
   <!-- Brain Dump page -->
   <main class="app dump screen" id="brainDump">
@@ -2110,6 +2350,14 @@
       >Sort my thoughts &rarr;</button>
     </div>
 
+    <!-- Ambient cherry blossom petals (decorative) -->
+    <svg class="amb-petal amb-petal-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F0D5C8" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="amb-petal amb-petal-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F7E5DA" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="amb-petal amb-petal-3" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F3DDD2" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="amb-petal amb-petal-4" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F0D5C8" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="amb-petal amb-petal-5" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F3DDD2" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="amb-petal amb-petal-6" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F7E5DA" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+
     <nav class="bottom-nav" aria-label="Main navigation">
       <button type="button" class="nav-tab" data-nav="home">Home</button>
       <button type="button" class="nav-tab active" data-nav="dump" aria-current="page">Brain dump</button>
@@ -2139,6 +2387,13 @@
         Start fresh &rarr;
       </button>
     </div>
+
+    <!-- Ambient cherry blossom petals (decorative) -->
+    <svg class="amb-petal amb-petal-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F3DDD2" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="amb-petal amb-petal-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F0D5C8" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="amb-petal amb-petal-3" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F7E5DA" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="amb-petal amb-petal-4" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F3DDD2" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="amb-petal amb-petal-5" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F0D5C8" stroke="#E8C9B8" stroke-width="0.5"/></svg>
 
     <nav class="bottom-nav" aria-label="Main navigation">
       <button type="button" class="nav-tab" data-nav="home">Home</button>
@@ -2206,6 +2461,14 @@
 
       <button type="button" class="change-birth-btn" id="changeBirthBtn">Change birth type</button>
     </section>
+
+    <!-- Ambient cherry blossom petals (decorative) -->
+    <svg class="amb-petal amb-petal-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F0D5C8" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="amb-petal amb-petal-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F7E5DA" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="amb-petal amb-petal-3" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F3DDD2" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="amb-petal amb-petal-4" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F3DDD2" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="amb-petal amb-petal-5" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F7E5DA" stroke="#E8C9B8" stroke-width="0.5"/></svg>
+    <svg class="amb-petal amb-petal-6" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1C19 4 19 16 12 22 5 16 5 4 12 1Z" fill="#F0D5C8" stroke="#E8C9B8" stroke-width="0.5"/></svg>
 
     <nav class="bottom-nav" aria-label="Main navigation">
       <button type="button" class="nav-tab" data-nav="home">Home</button>
@@ -2285,6 +2548,7 @@
       const input = document.getElementById('nameInput');
       const nameSlot = document.getElementById('nameSlot');
       const srLive = document.getElementById('srLive');
+      const petalLayer = document.getElementById('petalLayer');
 
       // Quick storage probe — used to show the gentle "won't save" banner.
       const STORAGE_OK = (function () {
@@ -2307,6 +2571,9 @@
         document.querySelectorAll('.screen').forEach(function (el) {
           el.classList.toggle('active', el.id === screenId);
         });
+        if (petalLayer) {
+          petalLayer.classList.toggle('active', screenId === 'landing');
+        }
       }
 
       function showLanding(name) {
@@ -3421,7 +3688,29 @@
       updateDumpUI();
 
       // ---------- Wire up events ----------
-      pourCta.addEventListener('click', showBrainDump);
+      function enterBrainDumpFromLanding() {
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduced) {
+          if (petalLayer) petalLayer.classList.add('sweeping');
+          setTimeout(function () {
+            if (petalLayer) petalLayer.classList.remove('sweeping');
+            showBrainDump();
+          }, 200);
+          return;
+        }
+        landing.classList.add('is-leaving');
+        if (petalLayer) petalLayer.classList.add('sweeping');
+        setTimeout(function () {
+          brainDump.classList.add('is-entering');
+          showBrainDump();
+        }, 600);
+        setTimeout(function () {
+          if (petalLayer) petalLayer.classList.remove('sweeping');
+          landing.classList.remove('is-leaving');
+        }, 800);
+      }
+
+      pourCta.addEventListener('click', enterBrainDumpFromLanding);
 
       dumpText.addEventListener('input', function () {
         updateDumpUI();
