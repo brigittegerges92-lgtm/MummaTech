@@ -636,6 +636,30 @@
       margin: 6px 2px 0;
     }
 
+    .mic-permission-hint {
+      font-family: 'DM Sans', sans-serif;
+      font-style: italic;
+      font-size: 11px;
+      color: var(--warm-grey);
+      margin: 6px 2px 0;
+      opacity: 0;
+    }
+    .mic-permission-hint.visible {
+      animation: mic-hint-fade 4600ms ease-out forwards;
+    }
+    @keyframes mic-hint-fade {
+      0%   { opacity: 0; }
+      4.4% { opacity: 1; }
+      91.3% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .mic-permission-hint.visible {
+        animation: none;
+        opacity: 1;
+      }
+    }
+
     .mic-status {
       display: flex;
       align-items: center;
@@ -2042,13 +2066,14 @@
        clicks. z-index 0 per spec. */
     #brainDump, #calmView, #recovery {
       position: relative;
+      isolation: isolate;
     }
 
     .amb-petal {
       position: absolute;
       display: block;
       pointer-events: none;
-      z-index: 0;
+      z-index: -1;
       width: var(--size, 22px);
       height: var(--size, 22px);
       opacity: 0.6;
@@ -2068,8 +2093,8 @@
     }
 
     /* Brain Dump petal placements */
-    #brainDump .amb-petal-1 { top: 4vh;     left: 4vw;   --size: 26px; --rotation: -20deg; --float-delay: 0s; }
-    #brainDump .amb-petal-2 { top: 8vh;     right: 6vw;  --size: 18px; --rotation:  35deg; --float-delay: 0.6s; }
+    #brainDump .amb-petal-1 { top: 1vh;     left: 2vw;   --size: 26px; --rotation: -20deg; --float-delay: 0s; }
+    #brainDump .amb-petal-2 { top: 62vh;    right: 6vw;  --size: 18px; --rotation:  35deg; --float-delay: 0.6s; }
     #brainDump .amb-petal-3 { top: 38vh;    right: 2vw;  --size: 22px; --rotation: -15deg; --float-delay: 1.2s; }
     #brainDump .amb-petal-4 { bottom: 18vh; left: 3vw;   --size: 24px; --rotation:  50deg; --float-delay: 1.8s; }
     #brainDump .amb-petal-5 { bottom: 22vh; right: 5vw;  --size: 18px; --rotation: -40deg; --float-delay: 2.4s; }
@@ -2303,7 +2328,10 @@
       </button>
     </div>
 
-    <p class="privacy-note">Voice stays on your device. Nothing is recorded or sent.</p>
+    <p class="privacy-note">Your voice is transcribed on your device. The text is sent securely to generate reframes, then discarded. Nothing is stored.</p>
+    <p class="mic-permission-hint" id="micPermissionHint" hidden>
+      Your browser will ask for microphone access. You can deny and still type.
+    </p>
     <p class="mic-denied-msg" id="micDeniedMsg" hidden>
       Mic isn&rsquo;t working. Make sure you&rsquo;re running on http://localhost (not file://)
       and that you&rsquo;ve allowed mic permission.
@@ -2637,6 +2665,7 @@
       const sortCta = document.getElementById('sortCta');
       const micBtn = document.getElementById('micBtn');
       const micDeniedMsg = document.getElementById('micDeniedMsg');
+      const micPermissionHint = document.getElementById('micPermissionHint');
       const micDebug = document.getElementById('micDebug');
       const settingsGear = document.getElementById('settingsGear');
       const settingsOverlay = document.getElementById('settingsOverlay');
@@ -3722,8 +3751,44 @@
         sortThoughts();
       });
 
+      let micFirstTapHandled = false;
+      function maybeShowMicPermissionHint() {
+        if (micFirstTapHandled) return;
+        micFirstTapHandled = true;
+        if (!micPermissionHint) return;
+
+        function showHint() {
+          micPermissionHint.hidden = false;
+          // Force reflow so the animation restart kicks in cleanly.
+          void micPermissionHint.offsetWidth;
+          micPermissionHint.classList.add('visible');
+          setTimeout(function () {
+            if (!micPermissionHint) return;
+            micPermissionHint.classList.remove('visible');
+            micPermissionHint.hidden = true;
+          }, 4600);
+        }
+
+        // Only show when the browser will actually prompt; if permission was
+        // already granted/denied in a prior session, skip the hint to avoid
+        // a misleading message.
+        try {
+          if (navigator.permissions && navigator.permissions.query) {
+            navigator.permissions.query({ name: 'microphone' }).then(
+              function (status) {
+                if (status.state === 'prompt') showHint();
+              },
+              function () { showHint(); }
+            );
+            return;
+          }
+        } catch (e) { /* fall through */ }
+        showHint();
+      }
+
       micBtn.addEventListener('click', function () {
         if (micBtn.disabled) return;
+        maybeShowMicPermissionHint();
         toggleRecording();
       });
 
