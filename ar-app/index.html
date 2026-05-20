@@ -50,38 +50,116 @@ input,textarea,select{font:inherit;color:inherit}
 @media print{ body{visibility:hidden} body::after{content:"Printing disabled.";visibility:visible;position:fixed;inset:0;display:grid;place-items:center;font-family:'DM Serif Display',serif;font-size:32px;background:var(--cream);color:var(--walnut)} }
 body.protected .stage-inner,body.protected .cam-video,body.protected .artwork{filter:blur(40px)!important;transition:none!important}
 
-/* ----- Email gate ----- */
+/* ----- Landing hero / email gate ----- */
 .gate{
   position:fixed;inset:0;z-index:100;
-  background:radial-gradient(ellipse at top, #2a221c 0%, #14100c 100%);
-  display:grid;place-items:center;
-  padding:24px;
-  opacity:1;transition:opacity .4s ease;
+  display:grid;grid-template-columns:1.15fr 1fr;
+  background:#0d0a07;
+  opacity:1;transition:opacity .5s ease;
 }
 .gate.hide{opacity:0;pointer-events:none}
-.gate-card{
-  background:var(--cream);
-  border-radius:20px;
-  max-width:460px;width:100%;
-  padding:40px 36px 32px;
-  box-shadow:0 30px 80px rgba(0,0,0,.5);
-  position:relative;
-  overflow:hidden;
+.gate-hero{
+  position:relative;overflow:hidden;
+  background:#1a1612;
 }
-.gate-card::before{
+.gate-hero-img{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  filter:saturate(1.05) contrast(1.02);
+  animation:heroIn 1.4s cubic-bezier(.2,.7,.2,1) both;
+}
+/* Default hero: a CSS-painted moody interior — replaced by real photo when ar-hero.jpg exists */
+.gate-hero-img.default{
+  background:
+    radial-gradient(ellipse 60% 40% at 30% 60%, rgba(176,133,80,.55) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 50% at 70% 30%, rgba(212,165,116,.25) 0%, transparent 60%),
+    linear-gradient(160deg, #2a1d12 0%, #4a3526 50%, #1a120a 100%);
+}
+.gate-hero-tint{
+  position:absolute;inset:0;
+  background:linear-gradient(120deg, rgba(13,10,7,.55) 0%, rgba(13,10,7,.15) 50%, rgba(13,10,7,.7) 100%);
+}
+.gate-hero-grain{
+  position:absolute;inset:0;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence baseFrequency='1.2' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/></svg>");
+  opacity:.18;mix-blend-mode:overlay;pointer-events:none;
+}
+.gate-hero-overlay{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:50px 56px;color:var(--cream);
+  z-index:2;
+}
+.gate-hero-brand{
+  font-family:'DM Serif Display',serif;
+  font-size:22px;letter-spacing:.02em;
+  display:flex;align-items:center;gap:12px;
+}
+.gate-hero-brand small{
+  font-family:'DM Sans',sans-serif;font-size:10px;
+  letter-spacing:.28em;text-transform:uppercase;opacity:.6;
+  display:block;margin-top:2px;
+}
+.gate-hero-quote{
+  font-family:'DM Serif Display',serif;
+  font-size:22px;line-height:1.35;max-width:440px;
+  font-style:italic;opacity:.92;
+  animation:heroFade 1.4s .4s both;
+}
+.gate-hero-quote::before{content:"\"";margin-right:4px;opacity:.5}
+.gate-hero-quote::after{content:"\"";margin-left:2px;opacity:.5}
+.gate-hero-credit{font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;opacity:.55;margin-top:14px}
+
+.gate-form-wrap{
+  display:flex;flex-direction:column;justify-content:center;
+  padding:64px 60px;
+  background:var(--cream);
+  position:relative;overflow-y:auto;
+}
+.gate-form-wrap::before{
   content:"";position:absolute;top:0;left:0;right:0;height:3px;
   background:linear-gradient(90deg,var(--gold) 0%,var(--gold-soft) 50%,var(--gold) 100%);
 }
+.gate-card{
+  max-width:420px;width:100%;margin:0 auto;
+  animation:formIn 1s .2s cubic-bezier(.2,.7,.2,1) both;
+}
 .gate-eyebrow{
-  font-size:11px;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--gold);font-weight:500;margin-bottom:14px;
+  font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold);font-weight:500;margin-bottom:22px;
+  display:flex;align-items:center;gap:10px;
+}
+.gate-eyebrow::before{
+  content:"";display:inline-block;width:24px;height:1px;background:var(--gold);
 }
 .gate h1{
   font-family:'DM Serif Display',serif;
-  font-size:32px;line-height:1.1;color:var(--walnut);
-  margin-bottom:10px;
+  font-size:52px;line-height:1.02;color:var(--walnut);
+  margin-bottom:18px;letter-spacing:-.01em;
 }
-.gate p{color:var(--walnut-soft);margin-bottom:24px;font-size:14px}
+.gate p.gate-lead{color:var(--walnut-soft);margin-bottom:34px;font-size:15px;line-height:1.6;max-width:380px}
+.gate-perks{
+  list-style:none;margin:0 0 28px;padding:0;
+  display:flex;flex-direction:column;gap:8px;
+}
+.gate-perks li{
+  display:flex;align-items:flex-start;gap:10px;
+  font-size:13px;color:var(--walnut-soft);
+}
+.gate-perks li svg{width:16px;height:16px;color:var(--sage);flex-shrink:0;margin-top:1px}
+
+@keyframes heroIn{from{transform:scale(1.06);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes heroFade{from{opacity:0;transform:translateY(12px)}to{opacity:.92;transform:translateY(0)}}
+@keyframes formIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+@media (max-width:880px){
+  .gate{grid-template-columns:1fr;grid-template-rows:36vh 1fr}
+  .gate-hero-overlay{padding:24px}
+  .gate-hero-brand{font-size:18px}
+  .gate-hero-quote{font-size:16px}
+  .gate-form-wrap{padding:30px 24px}
+  .gate h1{font-size:36px}
+}
 .gate-form{display:flex;flex-direction:column;gap:12px}
 .gate-form label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--walnut-soft);font-weight:500}
 .gate-form input{
@@ -334,23 +412,127 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
   box-shadow:inset 0 0 60px rgba(0,0,0,.08);
 }
 
-/* Oak frame styles */
-.frame-oak .artwork-img{
-  border:var(--frame-w,22px) solid #b8895a;
-  background-image:
-    repeating-linear-gradient(0deg, rgba(0,0,0,.04) 0px, rgba(0,0,0,.04) 1px, transparent 1px, transparent 4px),
-    repeating-linear-gradient(0deg, rgba(255,235,200,.06) 0px, rgba(255,235,200,.06) 2px, transparent 2px, transparent 7px),
-    var(--artwork-img);
-  background-size:auto, auto, cover;
-  box-shadow:
-    inset 0 0 0 calc(var(--frame-w,22px) * 0.04) rgba(0,0,0,.35),
-    inset 0 0 calc(var(--frame-w,22px) * 0.4) rgba(0,0,0,.18),
-    inset 0 0 0 calc(var(--frame-w,22px) - 1px) transparent,
-    0 1px 0 rgba(255,255,255,.1);
+/* ----- Realistic mitered oak frame ----- */
+.artwork-frame{ position:absolute; inset:0; pointer-events:none; z-index:4; display:none; }
+.frame-oak .artwork-frame{ display:block; }
+
+.frame-piece{
+  position:absolute;
+  background-color: var(--oak-color, #b08550);
 }
-.frame-oak.frame-stain-light .artwork-img{border-color:#caa173;background-color:#caa173}
-.frame-oak.frame-stain-natural .artwork-img{border-color:#b08550;background-color:#b08550}
-.frame-oak.frame-stain-walnut .artwork-img{border-color:#5d3f28;background-color:#5d3f28}
+.frame-top{
+  top:0; left:0; right:0; height:var(--fw, 22px);
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--fw, 22px)) 100%, var(--fw, 22px) 100%);
+  background-image:
+    linear-gradient(to bottom, rgba(255,238,212,.45) 0%, rgba(255,225,180,.10) 35%, rgba(0,0,0,.28) 100%),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 1px, transparent 1px 6px),
+    repeating-linear-gradient(90deg, rgba(255,240,210,.07) 0 1px, transparent 1px 13px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.025) 0 2px, transparent 2px 23px);
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,.35), inset 0 1px 0 rgba(255,240,215,.35);
+}
+.frame-bottom{
+  bottom:0; left:0; right:0; height:var(--fw, 22px);
+  clip-path: polygon(0 100%, 100% 100%, calc(100% - var(--fw, 22px)) 0, var(--fw, 22px) 0);
+  background-image:
+    linear-gradient(to top, rgba(0,0,0,.32) 0%, rgba(255,225,180,.06) 60%, rgba(255,240,215,.22) 100%),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 1px, transparent 1px 6px),
+    repeating-linear-gradient(90deg, rgba(255,240,210,.07) 0 1px, transparent 1px 13px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.025) 0 2px, transparent 2px 23px);
+  box-shadow: inset 0 1px 0 rgba(0,0,0,.25), inset 0 -1px 0 rgba(255,240,215,.18);
+}
+.frame-left{
+  top:0; bottom:0; left:0; width:var(--fw, 22px);
+  clip-path: polygon(0 0, 100% var(--fw, 22px), 100% calc(100% - var(--fw, 22px)), 0 100%);
+  background-image:
+    linear-gradient(to right, rgba(255,238,212,.40) 0%, rgba(255,225,180,.08) 40%, rgba(0,0,0,.28) 100%),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.05) 0 1px, transparent 1px 6px),
+    repeating-linear-gradient(0deg, rgba(255,240,210,.07) 0 1px, transparent 1px 13px),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.025) 0 2px, transparent 2px 23px);
+  box-shadow: inset -1px 0 0 rgba(0,0,0,.30), inset 1px 0 0 rgba(255,240,215,.25);
+}
+.frame-right{
+  top:0; bottom:0; right:0; width:var(--fw, 22px);
+  clip-path: polygon(100% 0, 100% 100%, 0 calc(100% - var(--fw, 22px)), 0 var(--fw, 22px));
+  background-image:
+    linear-gradient(to left, rgba(0,0,0,.30) 0%, rgba(255,225,180,.06) 60%, rgba(255,240,215,.22) 100%),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.05) 0 1px, transparent 1px 6px),
+    repeating-linear-gradient(0deg, rgba(255,240,210,.07) 0 1px, transparent 1px 13px),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.025) 0 2px, transparent 2px 23px);
+  box-shadow: inset 1px 0 0 rgba(0,0,0,.30), inset -1px 0 0 rgba(255,240,215,.15);
+}
+/* Mitre seam shadow — adds the dark hairline that real mitred joins show */
+.frame-mitre{
+  position:absolute; inset:0; pointer-events:none;
+  background:
+    linear-gradient(135deg, transparent calc(var(--fw, 22px) - 1px), rgba(0,0,0,.35) var(--fw, 22px), transparent calc(var(--fw, 22px) + 1px)) top left/var(--fw, 22px) var(--fw, 22px) no-repeat,
+    linear-gradient(225deg, transparent calc(var(--fw, 22px) - 1px), rgba(0,0,0,.35) var(--fw, 22px), transparent calc(var(--fw, 22px) + 1px)) top right/var(--fw, 22px) var(--fw, 22px) no-repeat,
+    linear-gradient(45deg,  transparent calc(var(--fw, 22px) - 1px), rgba(0,0,0,.35) var(--fw, 22px), transparent calc(var(--fw, 22px) + 1px)) bottom left/var(--fw, 22px) var(--fw, 22px) no-repeat,
+    linear-gradient(315deg, transparent calc(var(--fw, 22px) - 1px), rgba(0,0,0,.35) var(--fw, 22px), transparent calc(var(--fw, 22px) + 1px)) bottom right/var(--fw, 22px) var(--fw, 22px) no-repeat;
+  opacity:.55;
+}
+
+/* Stain palettes — picked up by all 4 pieces via the --oak-color variable */
+.frame-stain-light  { --oak-color:#caa173; }
+.frame-stain-natural{ --oak-color:#b08550; }
+.frame-stain-walnut { --oak-color:#5d3f28; }
+
+/* Mat shadow: dark inner gap between frame rebate and artwork */
+.frame-oak .artwork-img{
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,.55),
+    inset 0 2px 6px rgba(0,0,0,.45),
+    inset 0 -1px 3px rgba(255,255,255,.04);
+}
+
+/* ----- Lighting overlays (re-light the artwork to match the room) ----- */
+.art-relight{
+  position:absolute; inset:0;
+  background:
+    radial-gradient(circle at var(--glow-x, 28%) var(--glow-y, 28%),
+      var(--light-warm, rgba(255,210,150,.32)) 0%, transparent 62%),
+    linear-gradient(var(--light-angle, 135deg),
+      transparent 0%, transparent 45%, var(--light-cool, rgba(15,10,5,.30)) 100%);
+  mix-blend-mode: soft-light;
+  opacity: var(--relight-strength, .85);
+  pointer-events:none;
+  z-index:2;
+  transition: opacity .4s ease;
+}
+.art-glass{
+  position:absolute; inset:0;
+  background:
+    linear-gradient(118deg,
+      transparent 0%, transparent 16%,
+      rgba(255,255,255,.06) 19%,
+      rgba(255,255,255,.13) 22%,
+      rgba(255,255,255,.04) 26%,
+      transparent 34%,
+      transparent 70%,
+      rgba(255,255,255,.04) 78%,
+      rgba(255,255,255,.07) 82%,
+      transparent 90%);
+  mix-blend-mode: screen;
+  opacity:.55;
+  pointer-events:none;
+  z-index:3;
+}
+.relight-off .art-relight,.relight-off .art-glass{display:none}
+
+/* Size label that floats below the selected artwork */
+.size-label{
+  position:absolute;
+  left:50%; bottom:-26px;
+  transform:translateX(-50%);
+  font-family:'DM Sans',sans-serif;
+  font-size:10px; letter-spacing:.18em; text-transform:uppercase;
+  color:rgba(255,255,255,.85);
+  background:rgba(26,22,18,.78);
+  padding:4px 10px; border-radius:10px;
+  white-space:nowrap;
+  opacity:0; pointer-events:none;
+  transition:opacity .2s;
+}
+.artwork.selected .size-label,.artwork:hover .size-label{opacity:1}
 
 /* Resize/rotate handles */
 .handles{position:absolute;inset:0;pointer-events:none}
@@ -576,25 +758,47 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 </head>
 <body oncontextmenu="return false">
 
-<!-- ============================== EMAIL GATE ============================== -->
+<!-- ============================== LANDING / EMAIL GATE ============================== -->
 <div class="gate" id="gate">
-  <div class="gate-card">
-    <div class="gate-eyebrow">Free Tool · Brigitte Gerges Studio</div>
-    <h1>See it on your wall before you buy.</h1>
-    <p>Place any of my artworks into your own space — or photograph the room you have in mind. Pop your details in and I'll send you a discount on your first piece.</p>
-    <form class="gate-form" id="gate-form" novalidate>
-      <div class="row">
-        <label for="g-name">First name</label>
-        <input type="text" id="g-name" autocomplete="given-name" required>
+  <div class="gate-hero">
+    <div class="gate-hero-img default" id="gate-hero-img"></div>
+    <div class="gate-hero-tint"></div>
+    <div class="gate-hero-grain"></div>
+    <div class="gate-hero-overlay">
+      <div class="gate-hero-brand">
+        Brigitte Gerges
+        <small style="display:block;margin-top:4px">Studio · Sydney</small>
       </div>
-      <div class="row">
-        <label for="g-email">Email</label>
-        <input type="email" id="g-email" autocomplete="email" required>
+      <div>
+        <div class="gate-hero-quote">An original piece does more than fill a wall — it changes the light, the mood, the way a room speaks back to you.</div>
+        <div class="gate-hero-credit">Studio Note · Brigitte Gerges</div>
       </div>
-      <button class="gate-btn" type="submit" id="gate-submit">Open the Studio →</button>
-      <div class="gate-error" id="gate-error">Please enter a valid email.</div>
-    </form>
-    <div class="gate-foot">No spam. Unsubscribe anytime. By continuing you agree your details join the Brigitte Gerges studio newsletter.</div>
+    </div>
+  </div>
+  <div class="gate-form-wrap">
+    <div class="gate-card">
+      <div class="gate-eyebrow">Free Studio Tool</div>
+      <h1>See it on your wall before you commission.</h1>
+      <p class="gate-lead">Place any of my pieces into a styled room — or photograph your own wall in AR. When you share your mock-up, I'll knock $300 off your commission deposit.</p>
+      <ul class="gate-perks">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>Try the artwork in 5 designer rooms or your own photo</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>Real oak frame, real cm sizing, real cast shadow</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>Share &amp; unlock $300 off your commission deposit</li>
+      </ul>
+      <form class="gate-form" id="gate-form" novalidate>
+        <div class="row">
+          <label for="g-name">First name</label>
+          <input type="text" id="g-name" autocomplete="given-name" required>
+        </div>
+        <div class="row">
+          <label for="g-email">Email</label>
+          <input type="email" id="g-email" autocomplete="email" required>
+        </div>
+        <button class="gate-btn" type="submit" id="gate-submit">Open the Studio →</button>
+        <div class="gate-error" id="gate-error">Please enter a valid email.</div>
+      </form>
+      <div class="gate-foot">No spam. Unsubscribe anytime. Your details join the Brigitte Gerges studio newsletter.</div>
+    </div>
   </div>
 </div>
 
@@ -835,13 +1039,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 const FLODESK_FORM_ID = ''; // e.g. "67abc1234567890abcdef000"
 const FLODESK_SEGMENT_NAME = 'AR Studio leads';
 
-// Interiors that auto-load from /interiors. Sun defaults match the reference photos.
+// Interiors that auto-load from /interiors. Sun defaults match each reference photo.
 const ROOMS = [
-  {file:'interior-1.jpg', name:'Queenslander sunroom',  sun:{angle:135, length:28, blur:18, opacity:38}},
-  {file:'interior-2.jpg', name:'Terracotta drawing room', sun:{angle:150, length:22, blur:22, opacity:32}},
-  {file:'interior-3.jpg', name:'Coastal bedroom',       sun:{angle:160, length:14, blur:26, opacity:24}},
-  {file:'interior-4.jpg', name:'Harbour apartment (dusk)', sun:{angle:90,  length:8,  blur:30, opacity:20}},
-  {file:'interior-5.jpg', name:'Coastal living room',   sun:{angle:30,  length:18, blur:24, opacity:22}},
+  {file:'interior-1.jpg', name:'Brick & sun loft',           sun:{angle:55,  length:28, blur:14, opacity:42}},
+  {file:'interior-2.jpg', name:'Federation green velvet',    sun:{angle:80,  length:22, blur:20, opacity:32}},
+  {file:'interior-3.jpg', name:'Coastal golden hour',        sun:{angle:95,  length:24, blur:22, opacity:30}},
+  {file:'interior-4.jpg', name:'Federation marble fireplace', sun:{angle:75,  length:24, blur:18, opacity:36}},
+  {file:'interior-5.jpg', name:'Coastal harbour living',     sun:{angle:100, length:16, blur:26, opacity:22}},
 ];
 
 // ============================== STATE ==============================
@@ -1094,7 +1298,18 @@ function renderArtwork(){
     artEl.className = 'artwork';
     artEl.innerHTML = `
       <div class="artwork-shadow"></div>
-      <div class="artwork-img"></div>
+      <div class="artwork-img">
+        <div class="art-relight"></div>
+        <div class="art-glass"></div>
+      </div>
+      <div class="artwork-frame">
+        <div class="frame-piece frame-top"></div>
+        <div class="frame-piece frame-right"></div>
+        <div class="frame-piece frame-bottom"></div>
+        <div class="frame-piece frame-left"></div>
+        <div class="frame-mitre"></div>
+      </div>
+      <div class="size-label" id="art-size-label">60 × 90 cm</div>
       <div class="handles">
         <div class="handle tl" data-h="tl"></div>
         <div class="handle tr" data-h="tr"></div>
@@ -1105,18 +1320,69 @@ function renderArtwork(){
     stage.appendChild(artEl);
     attachArtInteractions(artEl);
   }
-  // Update img
   const imgEl = artEl.querySelector('.artwork-img');
-  imgEl.style.setProperty('--artwork-img', `url(${state.art.src})`);
   imgEl.style.backgroundImage = `url(${state.art.src})`;
 
-  // Frame class
+  // Frame on/off + stain
   artEl.classList.toggle('frame-oak', state.frame==='oak');
   artEl.classList.remove('frame-stain-light','frame-stain-natural','frame-stain-walnut');
   if(state.frame==='oak') artEl.classList.add('frame-stain-'+state.frameStain);
-  artEl.style.setProperty('--frame-w', state.frameWidth+'px');
+  artEl.style.setProperty('--fw', state.frameWidth+'px');
+
+  // Apply room lighting recipe to the artwork
+  applyRoomLight(artEl);
 
   layoutArtwork();
+}
+
+// ============================== ROOM LIGHTING RECIPES ==============================
+// Read from each reference photo: dominant light direction, color temperature, intensity.
+// These tints overlay the artwork via mix-blend-mode: soft-light, plus a brightness/saturation
+// pass on the image itself so a painting placed in the dusk apartment actually goes cool & dim.
+const LIGHT_RECIPE = {
+  0: { // Brick & sun loft — strong directional warm sun from upper-right window, dramatic
+    glow_x:'78%', glow_y:'20%', angle:225,
+    warm:'rgba(255,195,120,0.48)', cool:'rgba(20,10,5,0.32)',
+    filter:'brightness(1.04) saturate(1.10) sepia(.10)',
+    relight:.92
+  },
+  1: { // Federation green velvet — soft warm from right windows, plaster ambient
+    glow_x:'82%', glow_y:'28%', angle:240,
+    warm:'rgba(245,210,165,0.36)', cool:'rgba(35,25,15,0.22)',
+    filter:'brightness(.98) saturate(1.04) sepia(.06)',
+    relight:.85
+  },
+  2: { // Coastal golden hour — warm side light from right, cream stucco bounce
+    glow_x:'85%', glow_y:'32%', angle:250,
+    warm:'rgba(255,210,160,0.42)', cool:'rgba(40,28,18,0.18)',
+    filter:'brightness(1.02) saturate(1.06) sepia(.08)',
+    relight:.88
+  },
+  3: { // Federation marble — strong stained-glass cast from right arched windows
+    glow_x:'80%', glow_y:'18%', angle:235,
+    warm:'rgba(250,205,150,0.38)', cool:'rgba(30,18,10,0.25)',
+    filter:'brightness(1.00) saturate(1.05) sepia(.07)',
+    relight:.88
+  },
+  4: { // Coastal harbour living — diffuse overcast, neutral cool from right bay view
+    glow_x:'88%', glow_y:'40%', angle:260,
+    warm:'rgba(245,235,215,0.24)', cool:'rgba(170,170,160,0.18)',
+    filter:'brightness(1.02) saturate(.94)',
+    relight:.72
+  },
+};
+
+function applyRoomLight(el){
+  if(state.room===null) return;
+  const r = LIGHT_RECIPE[state.room] || LIGHT_RECIPE[1];
+  el.style.setProperty('--glow-x', r.glow_x);
+  el.style.setProperty('--glow-y', r.glow_y);
+  el.style.setProperty('--light-angle', r.angle+'deg');
+  el.style.setProperty('--light-warm', r.warm);
+  el.style.setProperty('--light-cool', r.cool);
+  el.style.setProperty('--relight-strength', r.relight);
+  const imgEl = el.querySelector('.artwork-img');
+  if(imgEl) imgEl.style.filter = r.filter;
 }
 
 function layoutArtwork(){
