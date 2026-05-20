@@ -1,0 +1,1855 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#1a1612">
+<meta name="robots" content="noindex">
+<title>See it on your wall — Brigitte Gerges</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --cream:#f6efe4;
+  --cream-2:#ede3d3;
+  --walnut:#3d3229;
+  --walnut-soft:#5b4a3d;
+  --gold:#b08550;
+  --gold-soft:#d4a574;
+  --sage:#5a7052;
+  --line:rgba(61,50,41,.14);
+  --line-soft:rgba(61,50,41,.08);
+  --shadow-card:0 2px 14px rgba(61,50,41,.08);
+  --radius:14px;
+  --radius-sm:8px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'DM Sans',system-ui,sans-serif;
+  background:var(--cream);
+  color:var(--walnut);
+  font-size:14px;line-height:1.45;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+}
+img{-webkit-user-drag:none;user-select:none;-webkit-user-select:none;pointer-events:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,textarea,select{font:inherit;color:inherit}
+
+/* ----- Anti-screenshot deterrents ----- */
+.stage,.artwork,.thumb,.cam-video{
+  -webkit-user-select:none;user-select:none;
+  -webkit-touch-callout:none;
+}
+@media print{ body{visibility:hidden} body::after{content:"Printing disabled.";visibility:visible;position:fixed;inset:0;display:grid;place-items:center;font-family:'DM Serif Display',serif;font-size:32px;background:var(--cream);color:var(--walnut)} }
+body.protected .stage-inner,body.protected .cam-video,body.protected .artwork{filter:blur(40px)!important;transition:none!important}
+
+/* ----- Email gate ----- */
+.gate{
+  position:fixed;inset:0;z-index:100;
+  background:radial-gradient(ellipse at top, #2a221c 0%, #14100c 100%);
+  display:grid;place-items:center;
+  padding:24px;
+  opacity:1;transition:opacity .4s ease;
+}
+.gate.hide{opacity:0;pointer-events:none}
+.gate-card{
+  background:var(--cream);
+  border-radius:20px;
+  max-width:460px;width:100%;
+  padding:40px 36px 32px;
+  box-shadow:0 30px 80px rgba(0,0,0,.5);
+  position:relative;
+  overflow:hidden;
+}
+.gate-card::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--gold) 0%,var(--gold-soft) 50%,var(--gold) 100%);
+}
+.gate-eyebrow{
+  font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gold);font-weight:500;margin-bottom:14px;
+}
+.gate h1{
+  font-family:'DM Serif Display',serif;
+  font-size:32px;line-height:1.1;color:var(--walnut);
+  margin-bottom:10px;
+}
+.gate p{color:var(--walnut-soft);margin-bottom:24px;font-size:14px}
+.gate-form{display:flex;flex-direction:column;gap:12px}
+.gate-form label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--walnut-soft);font-weight:500}
+.gate-form input{
+  width:100%;
+  background:transparent;
+  border:0;border-bottom:1px solid var(--line);
+  padding:10px 0;
+  font-size:15px;color:var(--walnut);
+  outline:none;
+  transition:border-color .2s;
+}
+.gate-form input:focus{border-color:var(--gold)}
+.gate-form .row{display:flex;flex-direction:column;gap:4px}
+.gate-btn{
+  margin-top:18px;
+  background:var(--walnut);color:var(--cream);
+  padding:14px 24px;border-radius:24px;
+  font-size:14px;font-weight:500;letter-spacing:.02em;
+  transition:background .2s, transform .1s;
+}
+.gate-btn:hover{background:#2a221c}
+.gate-btn:active{transform:scale(.98)}
+.gate-btn:disabled{opacity:.5;cursor:wait}
+.gate-foot{
+  margin-top:18px;font-size:11px;color:var(--walnut-soft);
+  text-align:center;line-height:1.5;
+}
+.gate-error{
+  margin-top:8px;font-size:12px;color:#b34a3a;display:none;
+}
+.gate-error.show{display:block}
+
+/* ----- App shell ----- */
+.app{
+  display:grid;
+  grid-template-rows:56px 1fr;
+  height:100vh;height:100dvh;
+}
+header.bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+  border-bottom:1px solid var(--line);
+  background:var(--cream);
+  z-index:5;
+}
+.brand{display:flex;align-items:center;gap:10px;font-family:'DM Serif Display',serif;font-size:18px;color:var(--walnut)}
+.brand-mark{
+  width:26px;height:26px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold) 0%,var(--gold-soft) 100%);
+  display:grid;place-items:center;color:#fff;font-size:14px;
+}
+.tabs{display:flex;gap:4px;background:var(--cream-2);border-radius:24px;padding:4px}
+.tabs button{
+  padding:8px 18px;border-radius:20px;font-size:13px;font-weight:500;
+  color:var(--walnut-soft);transition:all .2s;
+}
+.tabs button.on{background:var(--cream);color:var(--walnut);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.bar-right{display:flex;gap:8px;align-items:center}
+.icon-btn{
+  width:36px;height:36px;border-radius:50%;
+  display:grid;place-items:center;color:var(--walnut-soft);
+  transition:background .2s;
+}
+.icon-btn:hover{background:var(--cream-2)}
+
+/* ----- Mode wrappers ----- */
+.mode{display:none;height:100%;overflow:hidden}
+.mode.on{display:grid}
+
+/* ----- Studio ----- */
+.studio{
+  grid-template-columns:300px 1fr 240px;
+}
+@media (max-width:900px){
+  .studio{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}
+  .studio .rail-left,.studio .rail-right{max-height:240px;overflow-y:auto}
+}
+.rail{
+  background:var(--cream);
+  padding:18px 20px;
+  overflow-y:auto;
+}
+.rail-left{border-right:1px solid var(--line)}
+.rail-right{border-left:1px solid var(--line)}
+.rail h3{
+  font-family:'DM Serif Display',serif;
+  font-size:18px;font-weight:400;margin-bottom:6px;color:var(--walnut);
+}
+.rail .group{margin-bottom:24px}
+.rail .group:last-child{margin-bottom:0}
+.rail label.field{
+  display:block;
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--walnut-soft);margin-bottom:8px;font-weight:500;
+}
+.divider{height:1px;background:var(--line-soft);margin:18px -20px;border:0}
+
+/* Sliders */
+.slider-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.slider-row label{flex:0 0 70px;font-size:11px;color:var(--walnut-soft);text-transform:uppercase;letter-spacing:.08em}
+.slider-row input[type=range]{flex:1;accent-color:var(--gold)}
+.slider-row .val{font-size:11px;color:var(--walnut-soft);min-width:34px;text-align:right;font-variant-numeric:tabular-nums}
+
+input[type=range]{
+  -webkit-appearance:none;height:3px;background:var(--line);border-radius:2px;outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--walnut);cursor:pointer;border:2px solid var(--cream);
+  box-shadow:0 1px 4px rgba(0,0,0,.2);
+}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--walnut);cursor:pointer;border:2px solid var(--cream)}
+
+/* Upload */
+.upload{
+  border:1.5px dashed var(--line);
+  border-radius:var(--radius);
+  padding:18px 14px;text-align:center;
+  cursor:pointer;transition:all .2s;
+  background:rgba(255,255,255,.3);
+}
+.upload:hover{border-color:var(--gold);background:rgba(212,165,116,.06)}
+.upload.has-file{padding:8px;border-style:solid;border-color:var(--line)}
+.upload-icon{font-size:18px;color:var(--gold);margin-bottom:6px}
+.upload-text{font-size:12px;color:var(--walnut-soft);line-height:1.4}
+.upload-text b{color:var(--walnut);font-weight:500}
+.upload img{width:100%;border-radius:8px;display:block;pointer-events:none}
+
+/* Chip selector */
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{
+  padding:7px 12px;border-radius:16px;
+  font-size:12px;background:var(--cream-2);color:var(--walnut-soft);
+  transition:all .2s;border:1px solid transparent;
+}
+.chip.on{background:var(--walnut);color:var(--cream)}
+.chip:hover:not(.on){border-color:var(--gold)}
+
+/* Sun dial */
+.dial-wrap{
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:10px;
+}
+.dial{
+  width:80px;height:80px;border-radius:50%;
+  background:radial-gradient(circle at 50% 50%, #f6efe4 0%, #ede3d3 100%);
+  position:relative;flex-shrink:0;
+  border:1px solid var(--line);
+  cursor:grab;
+  touch-action:none;
+}
+.dial:active{cursor:grabbing}
+.dial::before{
+  content:"";position:absolute;inset:8px;border-radius:50%;
+  border:1px dashed var(--line);
+}
+.dial-sun{
+  position:absolute;width:14px;height:14px;border-radius:50%;
+  background:radial-gradient(circle,#ffd97a 0%,var(--gold) 100%);
+  top:50%;left:50%;
+  transform-origin:0 0;
+  box-shadow:0 0 12px rgba(208,165,90,.6);
+  pointer-events:none;
+}
+.dial-center{
+  position:absolute;width:6px;height:6px;border-radius:50%;
+  background:var(--walnut);top:50%;left:50%;transform:translate(-50%,-50%);
+  pointer-events:none;
+}
+.dial-info{flex:1;font-size:11px;color:var(--walnut-soft);line-height:1.5}
+.dial-info b{display:block;color:var(--walnut);font-size:13px;font-family:'DM Serif Display',serif;font-weight:400;margin-bottom:2px}
+
+/* Interior gallery */
+.gallery{display:flex;flex-direction:column;gap:10px}
+.thumb{
+  border-radius:10px;overflow:hidden;
+  aspect-ratio:4/3;
+  position:relative;cursor:pointer;
+  background:var(--cream-2);
+  border:2px solid transparent;
+  transition:all .2s;
+}
+.thumb.on{border-color:var(--gold)}
+.thumb.empty{
+  display:grid;place-items:center;
+  border:1.5px dashed var(--line);
+}
+.thumb.empty .upload-text{font-size:11px;padding:4px 8px}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .thumb-label{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(transparent, rgba(0,0,0,.7));
+  color:#fff;font-size:10px;padding:14px 8px 6px;
+  letter-spacing:.04em;
+}
+
+/* Stage */
+.stage-wrap{
+  position:relative;
+  background:#1a1612;
+  overflow:hidden;
+  display:grid;place-items:center;
+  padding:24px;
+}
+.stage-inner{
+  position:relative;
+  max-width:100%;max-height:100%;
+  box-shadow:0 30px 80px rgba(0,0,0,.5);
+  border-radius:6px;overflow:hidden;
+  user-select:none;
+}
+.stage-bg{
+  display:block;
+  max-width:100%;max-height:calc(100vh - 56px - 48px);
+  width:auto;height:auto;
+  pointer-events:none;
+}
+.stage-empty{
+  color:rgba(255,255,255,.5);
+  text-align:center;padding:60px 30px;
+  font-family:'DM Serif Display',serif;font-size:20px;
+  line-height:1.5;
+}
+.stage-empty small{display:block;font-family:'DM Sans',sans-serif;font-size:13px;color:rgba(255,255,255,.35);margin-top:10px;letter-spacing:.02em}
+
+/* Artwork on stage */
+.artwork{
+  position:absolute;
+  top:0;left:0;
+  cursor:grab;
+  transform-origin:center center;
+  touch-action:none;
+}
+.artwork:active{cursor:grabbing}
+.artwork.selected{outline:1px dashed rgba(212,165,116,.9);outline-offset:2px}
+.artwork-shadow{
+  position:absolute;inset:0;
+  background:#000;
+  filter:blur(var(--shadow-blur,12px));
+  opacity:var(--shadow-opacity,.35);
+  z-index:-1;
+  pointer-events:none;
+  border-radius:1px;
+}
+.artwork-img{
+  width:100%;height:100%;
+  display:block;
+  position:relative;z-index:1;
+  background-size:cover;background-position:center;
+  box-shadow:inset 0 0 60px rgba(0,0,0,.08);
+}
+
+/* Oak frame styles */
+.frame-oak .artwork-img{
+  border:var(--frame-w,22px) solid #b8895a;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0,0,0,.04) 0px, rgba(0,0,0,.04) 1px, transparent 1px, transparent 4px),
+    repeating-linear-gradient(0deg, rgba(255,235,200,.06) 0px, rgba(255,235,200,.06) 2px, transparent 2px, transparent 7px),
+    var(--artwork-img);
+  background-size:auto, auto, cover;
+  box-shadow:
+    inset 0 0 0 calc(var(--frame-w,22px) * 0.04) rgba(0,0,0,.35),
+    inset 0 0 calc(var(--frame-w,22px) * 0.4) rgba(0,0,0,.18),
+    inset 0 0 0 calc(var(--frame-w,22px) - 1px) transparent,
+    0 1px 0 rgba(255,255,255,.1);
+}
+.frame-oak.frame-stain-light .artwork-img{border-color:#caa173;background-color:#caa173}
+.frame-oak.frame-stain-natural .artwork-img{border-color:#b08550;background-color:#b08550}
+.frame-oak.frame-stain-walnut .artwork-img{border-color:#5d3f28;background-color:#5d3f28}
+
+/* Resize/rotate handles */
+.handles{position:absolute;inset:0;pointer-events:none}
+.handle{
+  position:absolute;width:14px;height:14px;
+  background:var(--cream);border:1.5px solid var(--gold);
+  border-radius:50%;pointer-events:auto;
+  cursor:nwse-resize;
+  box-shadow:0 1px 4px rgba(0,0,0,.3);
+  touch-action:none;
+}
+.handle.tl{top:-7px;left:-7px;cursor:nwse-resize}
+.handle.tr{top:-7px;right:-7px;cursor:nesw-resize}
+.handle.bl{bottom:-7px;left:-7px;cursor:nesw-resize}
+.handle.br{bottom:-7px;right:-7px;cursor:nwse-resize}
+.handle.rotate{
+  top:-32px;left:50%;transform:translateX(-50%);
+  cursor:grab;background:var(--gold);
+}
+.handle.rotate:active{cursor:grabbing}
+.handle.rotate::after{
+  content:"";position:absolute;top:14px;left:50%;
+  width:1px;height:18px;background:var(--gold);transform:translateX(-50%);
+}
+
+/* Action bar */
+.actions{
+  position:absolute;bottom:18px;left:50%;
+  transform:translateX(-50%);
+  display:flex;gap:8px;
+  background:rgba(26,22,18,.85);backdrop-filter:blur(10px);
+  padding:6px;border-radius:30px;
+  box-shadow:0 6px 20px rgba(0,0,0,.4);
+}
+.actions button{
+  padding:10px 18px;border-radius:24px;
+  color:#fff;font-size:13px;font-weight:500;
+  display:flex;align-items:center;gap:6px;
+  transition:background .2s;
+}
+.actions button:hover{background:rgba(255,255,255,.1)}
+.actions button.primary{background:var(--gold);color:#1a1612}
+.actions button.primary:hover{background:var(--gold-soft)}
+
+/* ----- AR Camera mode ----- */
+.cam{
+  position:relative;
+  background:#000;
+}
+.cam-video{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  pointer-events:none;
+}
+.cam-start{
+  position:absolute;inset:0;
+  display:grid;place-items:center;
+  background:radial-gradient(ellipse at center, #2a221c 0%, #0a0806 100%);
+  color:#fff;text-align:center;padding:30px;
+}
+.cam-start.hide{display:none}
+.cam-start h2{font-family:'DM Serif Display',serif;font-size:28px;margin-bottom:10px}
+.cam-start p{color:rgba(255,255,255,.7);max-width:380px;margin:0 auto 24px;font-size:14px;line-height:1.55}
+.cam-start button{
+  padding:14px 28px;border-radius:30px;
+  background:var(--gold);color:#1a1612;font-weight:500;font-size:14px;
+  display:inline-flex;align-items:center;gap:8px;
+  transition:transform .15s;
+}
+.cam-start button:hover{transform:scale(1.03)}
+
+.cam-controls{
+  position:absolute;top:14px;right:14px;
+  display:flex;gap:8px;
+}
+.cam-controls button{
+  width:42px;height:42px;border-radius:50%;
+  background:rgba(26,22,18,.7);backdrop-filter:blur(10px);
+  color:#fff;display:grid;place-items:center;
+}
+
+/* ----- Toast ----- */
+.toast{
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(40px);
+  background:var(--walnut);color:var(--cream);
+  padding:12px 22px;border-radius:24px;
+  font-size:13px;letter-spacing:.02em;
+  opacity:0;pointer-events:none;
+  transition:all .3s ease;z-index:50;
+  box-shadow:0 6px 20px rgba(0,0,0,.3);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ----- Hide native scrollbars ----- */
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+
+/* ----- Share modal ----- */
+.share-modal{
+  position:fixed;inset:0;z-index:90;
+  background:rgba(20,16,12,.78);backdrop-filter:blur(8px);
+  display:none;place-items:center;padding:20px;
+  opacity:0;transition:opacity .3s;
+}
+.share-modal.show{display:grid;opacity:1}
+.share-card{
+  background:var(--cream);border-radius:20px;
+  max-width:480px;width:100%;
+  padding:34px 32px 28px;
+  position:relative;overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,.5);
+  max-height:calc(100dvh - 40px);overflow-y:auto;
+}
+.share-card::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--gold) 0%,var(--gold-soft) 50%,var(--gold) 100%);
+}
+.share-close{
+  position:absolute;top:14px;right:14px;
+  width:30px;height:30px;border-radius:50%;
+  display:grid;place-items:center;color:var(--walnut-soft);
+  background:rgba(0,0,0,.04);font-size:16px;
+}
+.share-eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:10px}
+.share-card h2{
+  font-family:'DM Serif Display',serif;font-size:28px;line-height:1.15;
+  color:var(--walnut);margin-bottom:10px;
+}
+.share-card .lead{color:var(--walnut-soft);font-size:14px;margin-bottom:6px;line-height:1.55}
+.deal-line{
+  display:flex;align-items:baseline;gap:10px;
+  font-family:'DM Sans',sans-serif;margin:14px 0 18px;
+  font-size:13px;color:var(--walnut-soft);
+}
+.deal-line .strike{text-decoration:line-through;color:var(--walnut-soft);opacity:.7}
+.deal-line .now{font-family:'DM Serif Display',serif;font-size:30px;color:var(--walnut)}
+.deal-line .save{
+  background:var(--sage);color:#fff;font-size:11px;
+  padding:3px 8px;border-radius:10px;font-weight:500;letter-spacing:.04em;
+}
+
+.share-preview{
+  border-radius:10px;overflow:hidden;
+  margin-bottom:18px;
+  background:#1a1612;
+  aspect-ratio:4/3;
+  display:grid;place-items:center;
+  border:1px solid var(--line);
+}
+.share-preview img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.share-preview .placeholder{color:rgba(255,255,255,.4);font-size:13px;font-family:'DM Serif Display',serif}
+
+.share-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px;
+}
+.share-btn{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:12px 6px;border-radius:12px;background:var(--cream-2);
+  color:var(--walnut);font-size:11px;font-weight:500;
+  transition:all .2s;
+}
+.share-btn:hover{background:var(--gold-soft);color:#1a1612;transform:translateY(-1px)}
+.share-btn svg{width:22px;height:22px}
+.share-btn.primary{
+  grid-column:1/-1;
+  flex-direction:row;justify-content:center;gap:10px;
+  padding:14px;background:var(--walnut);color:var(--cream);
+  font-size:14px;
+}
+.share-btn.primary:hover{background:#2a221c;color:var(--cream)}
+.share-btn.primary svg{width:18px;height:18px}
+
+.code-lock{
+  border:1px dashed var(--line);border-radius:12px;
+  padding:18px;text-align:center;
+  background:rgba(255,255,255,.4);
+  position:relative;overflow:hidden;
+}
+.code-lock.locked .code-value{filter:blur(10px);user-select:none}
+.code-lock .label{
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--walnut-soft);margin-bottom:8px;font-weight:500;
+}
+.code-value{
+  font-family:'DM Serif Display',serif;font-size:30px;
+  letter-spacing:.1em;color:var(--walnut);
+  margin-bottom:4px;transition:filter .4s;
+}
+.code-sub{font-size:12px;color:var(--walnut-soft);margin-bottom:12px}
+.code-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.code-actions button{
+  padding:10px 16px;border-radius:20px;font-size:12px;font-weight:500;
+  transition:all .2s;
+}
+.code-actions .copy-btn{background:var(--cream-2);color:var(--walnut)}
+.code-actions .copy-btn:hover{background:var(--line)}
+.code-actions .book-btn{background:var(--gold);color:#1a1612}
+.code-actions .book-btn:hover{background:var(--gold-soft)}
+.code-lock .veil{
+  position:absolute;inset:0;display:grid;place-items:center;
+  background:linear-gradient(180deg, rgba(246,239,228,0) 0%, rgba(246,239,228,.92) 60%);
+  padding:18px;color:var(--walnut-soft);font-size:12px;line-height:1.5;
+  pointer-events:none;text-align:center;
+}
+.code-lock:not(.locked) .veil{display:none}
+
+@media (max-width:520px){
+  .share-grid{grid-template-columns:repeat(3,1fr)}
+  .share-card h2{font-size:22px}
+  .deal-line .now{font-size:24px}
+}
+
+/* Mobile tweaks */
+@media (max-width:640px){
+  .gate-card{padding:30px 24px 24px}
+  .gate h1{font-size:24px}
+  .actions{padding:4px;gap:4px}
+  .actions button{padding:8px 12px;font-size:12px}
+}
+</style>
+</head>
+<body oncontextmenu="return false">
+
+<!-- ============================== EMAIL GATE ============================== -->
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-eyebrow">Free Tool · Brigitte Gerges Studio</div>
+    <h1>See it on your wall before you buy.</h1>
+    <p>Place any of my artworks into your own space — or photograph the room you have in mind. Pop your details in and I'll send you a discount on your first piece.</p>
+    <form class="gate-form" id="gate-form" novalidate>
+      <div class="row">
+        <label for="g-name">First name</label>
+        <input type="text" id="g-name" autocomplete="given-name" required>
+      </div>
+      <div class="row">
+        <label for="g-email">Email</label>
+        <input type="email" id="g-email" autocomplete="email" required>
+      </div>
+      <button class="gate-btn" type="submit" id="gate-submit">Open the Studio →</button>
+      <div class="gate-error" id="gate-error">Please enter a valid email.</div>
+    </form>
+    <div class="gate-foot">No spam. Unsubscribe anytime. By continuing you agree your details join the Brigitte Gerges studio newsletter.</div>
+  </div>
+</div>
+
+<!-- ============================== APP SHELL ============================== -->
+<div class="app">
+  <header class="bar">
+    <div class="brand">
+      <div class="brand-mark">B</div>
+      <span>Brigitte Gerges · AR</span>
+    </div>
+    <div class="tabs">
+      <button class="on" data-tab="studio">Studio</button>
+      <button data-tab="camera">AR Camera</button>
+    </div>
+    <div class="bar-right">
+      <button class="icon-btn" id="help-btn" title="Help" aria-label="Help">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 015 0c0 1.5-2.5 2-2.5 3.5"/><circle cx="12" cy="17" r=".5" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============================== STUDIO MODE ============================== -->
+  <main class="mode studio on" id="mode-studio">
+
+    <!-- LEFT RAIL: artwork + frame + shadow -->
+    <aside class="rail rail-left">
+      <div class="group">
+        <h3>Artwork</h3>
+        <label class="upload" id="art-upload">
+          <input type="file" accept="image/*" hidden id="art-input">
+          <div class="upload-icon">⬆</div>
+          <div class="upload-text"><b>Upload your artwork</b><br>or drop a file here</div>
+        </label>
+      </div>
+
+      <hr class="divider">
+
+      <div class="group">
+        <h3>Frame</h3>
+        <label class="field">Style</label>
+        <div class="chips" id="frame-style">
+          <button class="chip on" data-frame="none">None</button>
+          <button class="chip" data-frame="oak">Oak</button>
+        </div>
+        <div id="frame-opts" style="margin-top:14px;display:none">
+          <label class="field" style="margin-top:6px">Stain</label>
+          <div class="chips" id="frame-stain">
+            <button class="chip" data-stain="light">Light oak</button>
+            <button class="chip on" data-stain="natural">Natural</button>
+            <button class="chip" data-stain="walnut">Walnut</button>
+          </div>
+          <div class="slider-row" style="margin-top:14px">
+            <label>Width</label>
+            <input type="range" id="frame-width" min="8" max="60" value="22">
+            <span class="val" id="frame-width-val">22</span>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="group">
+        <h3>Sun &amp; shadow</h3>
+        <div class="dial-wrap">
+          <div class="dial" id="sun-dial">
+            <div class="dial-sun" id="sun-sun"></div>
+            <div class="dial-center"></div>
+          </div>
+          <div class="dial-info">
+            <b id="sun-angle-label">Front-left</b>
+            Drag the sun to match the light in your scene.
+          </div>
+        </div>
+        <div class="slider-row">
+          <label>Length</label>
+          <input type="range" id="shadow-length" min="0" max="80" value="22">
+          <span class="val" id="shadow-length-val">22</span>
+        </div>
+        <div class="slider-row">
+          <label>Soften</label>
+          <input type="range" id="shadow-blur" min="0" max="60" value="14">
+          <span class="val" id="shadow-blur-val">14</span>
+        </div>
+        <div class="slider-row">
+          <label>Depth</label>
+          <input type="range" id="shadow-opacity" min="0" max="100" value="35">
+          <span class="val" id="shadow-opacity-val">35</span>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="group">
+        <h3>Artwork tilt</h3>
+        <div class="slider-row">
+          <label>Rotate</label>
+          <input type="range" id="art-rotate" min="-180" max="180" value="0">
+          <span class="val" id="art-rotate-val">0°</span>
+        </div>
+        <div class="slider-row">
+          <label>Skew X</label>
+          <input type="range" id="art-skewx" min="-25" max="25" value="0">
+          <span class="val" id="art-skewx-val">0°</span>
+        </div>
+        <div class="slider-row">
+          <label>Skew Y</label>
+          <input type="range" id="art-skewy" min="-25" max="25" value="0">
+          <span class="val" id="art-skewy-val">0°</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER STAGE -->
+    <div class="stage-wrap">
+      <div class="stage-inner" id="stage">
+        <img class="stage-bg" id="stage-bg" alt="" style="display:none">
+        <div class="stage-empty" id="stage-empty">
+          Choose a room →<small>or upload your artwork to start</small>
+        </div>
+      </div>
+      <div class="actions" id="stage-actions" style="display:none">
+        <button id="btn-center" title="Centre artwork">⤬ Centre</button>
+        <button id="btn-reset" title="Reset">↺ Reset</button>
+        <button id="btn-download" title="Download as JPG">⬇ Download</button>
+        <button class="primary" id="btn-share">✦ Share &amp; unlock $300</button>
+      </div>
+    </div>
+
+    <!-- RIGHT RAIL: interior gallery -->
+    <aside class="rail rail-right">
+      <h3 style="margin-bottom:14px">Rooms</h3>
+      <div class="gallery" id="gallery"></div>
+      <hr class="divider">
+      <div style="font-size:11px;color:var(--walnut-soft);line-height:1.55">
+        <b style="color:var(--walnut)">Tip:</b> click a room to use it, or drop your own photo into a slot. Each room ships with a default sun direction.
+      </div>
+    </aside>
+  </main>
+
+  <!-- ============================== AR CAMERA MODE ============================== -->
+  <main class="mode cam" id="mode-camera">
+    <video class="cam-video" id="cam-video" autoplay playsinline muted></video>
+    <div class="cam-start" id="cam-start">
+      <h2>Place it on your wall, live.</h2>
+      <p>Point your phone or webcam at the wall where you'd like to hang the piece. Drag, pinch and rotate to position. Tap capture when you've got it.</p>
+      <button id="cam-go">📷 Start camera</button>
+      <p style="margin-top:18px;font-size:12px">Best on a phone. Works in any browser that allows camera access.</p>
+    </div>
+    <div class="cam-controls" id="cam-controls" style="display:none">
+      <button id="cam-flip" title="Switch camera">⇄</button>
+      <button id="cam-stop" title="Stop">✕</button>
+    </div>
+    <div class="actions" id="cam-actions" style="display:none">
+      <button id="cam-frame-toggle">+ Oak frame</button>
+      <button id="cam-capture">📸 Capture</button>
+      <button class="primary" id="cam-share">✦ Share &amp; unlock $300</button>
+    </div>
+  </main>
+</div>
+
+<!-- ============================== SHARE MODAL ============================== -->
+<div class="share-modal" id="share-modal" role="dialog" aria-modal="true">
+  <div class="share-card">
+    <button class="share-close" id="share-close" aria-label="Close">✕</button>
+    <div class="share-eyebrow">Studio Friends · Limited offer</div>
+    <h2>Share your mock-up, unlock $300 off.</h2>
+    <p class="lead">Post your mocked-up room to Instagram, or send it to a friend who'd love it. Once you do, your commission deposit drops from $500 to just $200.</p>
+
+    <div class="deal-line">
+      <span class="strike">$500</span>
+      <span>→</span>
+      <span class="now">$200</span>
+      <span class="save">Save $300</span>
+      <span>commission deposit</span>
+    </div>
+
+    <div class="share-preview" id="share-preview">
+      <div class="placeholder">Your mock-up appears here</div>
+    </div>
+
+    <div class="share-grid" id="share-grid">
+      <button class="share-btn primary" id="sb-native">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 002 2h12a2 2 0 002-2v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg>
+        Share image
+      </button>
+      <button class="share-btn" data-share="instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg>
+        Instagram
+      </button>
+      <button class="share-btn" data-share="whatsapp">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3.6-7.2L21 3l-1.2 3.6A9 9 0 0121 12z"/><path d="M8 10c0 4 2 6 6 6l1.5-1.5-2-1L12 14a3 3 0 01-2-2l.5-1.5-1-2L8 10z" fill="currentColor"/></svg>
+        WhatsApp
+      </button>
+      <button class="share-btn" data-share="messenger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C7 3 3 6.7 3 11.3c0 2.5 1.2 4.8 3.2 6.3V21l3-1.6c.9.2 1.8.4 2.8.4 5 0 9-3.7 9-8.5S17 3 12 3z"/><path d="M7 12l3-3 2 2 4-4-3 5-2-2-4 4z"/></svg>
+        Messenger
+      </button>
+      <button class="share-btn" data-share="email">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+        Email
+      </button>
+      <button class="share-btn" data-share="sms">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 01-11.4 7.3L4 21l1.7-5.6A8 8 0 1121 12z"/></svg>
+        Text
+      </button>
+      <button class="share-btn" data-share="copy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></svg>
+        Copy link
+      </button>
+    </div>
+
+    <div class="code-lock locked" id="code-lock">
+      <div class="label">Your discount code</div>
+      <div class="code-value" id="code-value">BG-XXXXXX</div>
+      <div class="code-sub" id="code-sub">$300 off your commission deposit — valid for 14 days</div>
+      <div class="code-actions">
+        <button class="copy-btn" id="copy-code">📋 Copy code</button>
+        <a class="book-btn" id="book-link" href="https://brigittegerges.com/commission" target="_blank" rel="noopener">Book my commission →</a>
+      </div>
+      <div class="veil">Code unlocks the moment you share. Pick a platform above ↑</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ====================================================================
+                              APP LOGIC
+==================================================================== -->
+<script>
+'use strict';
+
+// ============================== CONFIG ==============================
+// Flodesk integration — paste your form ID below.
+// To enable: log in to Flodesk → Audience → Forms → Inline Form → "Embed"
+// → copy the form ID (the value of `data-ff-el`). Paste it here.
+// Until configured, signups are stored locally + logged to console so you can wire it up later.
+const FLODESK_FORM_ID = ''; // e.g. "67abc1234567890abcdef000"
+const FLODESK_SEGMENT_NAME = 'AR Studio leads';
+
+// Interiors that auto-load from /interiors. Sun defaults match the reference photos.
+const ROOMS = [
+  {file:'interior-1.jpg', name:'Queenslander sunroom',  sun:{angle:135, length:28, blur:18, opacity:38}},
+  {file:'interior-2.jpg', name:'Terracotta drawing room', sun:{angle:150, length:22, blur:22, opacity:32}},
+  {file:'interior-3.jpg', name:'Coastal bedroom',       sun:{angle:160, length:14, blur:26, opacity:24}},
+  {file:'interior-4.jpg', name:'Harbour apartment (dusk)', sun:{angle:90,  length:8,  blur:30, opacity:20}},
+  {file:'interior-5.jpg', name:'Coastal living room',   sun:{angle:30,  length:18, blur:24, opacity:22}},
+];
+
+// ============================== STATE ==============================
+const state = {
+  art:null,              // {src, w, h, naturalW, naturalH}
+  room:null,             // index into ROOMS
+  pos:{x:0.4, y:0.18},   // relative to stage (0-1)
+  size:0.35,             // width as fraction of stage width
+  rotate:0,
+  skewX:0,
+  skewY:0,
+  frame:'none',          // 'none' | 'oak'
+  frameStain:'natural',
+  frameWidth:22,
+  sun:{angle:135, length:22, blur:14, opacity:35},
+  customRooms:{},        // {idx: dataUrl} — user-uploaded overrides
+};
+
+// ============================== EMAIL GATE ==============================
+const gate = document.getElementById('gate');
+const gateForm = document.getElementById('gate-form');
+const gateError = document.getElementById('gate-error');
+const gateBtn = document.getElementById('gate-submit');
+
+function openApp(){
+  gate.classList.add('hide');
+  setTimeout(()=>gate.style.display='none', 450);
+}
+
+if(localStorage.getItem('bg-ar-unlocked')==='1'){
+  openApp();
+}
+
+gateForm.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const name = document.getElementById('g-name').value.trim();
+  const email = document.getElementById('g-email').value.trim();
+  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    gateError.classList.add('show'); return;
+  }
+  gateError.classList.remove('show');
+  gateBtn.disabled = true; gateBtn.textContent = 'Opening…';
+
+  // ─── Flodesk submission ───────────────────────────────────────
+  // Flodesk's inline form posts to https://form.flodesk.com/forms/{FORM_ID}/submit
+  // with multipart form-data. We use a hidden iframe target so we don't depend
+  // on CORS. If FLODESK_FORM_ID is blank we just stash locally.
+  try{
+    if(FLODESK_FORM_ID){
+      await flodeskSubmit({name, email});
+    }else{
+      console.info('[AR] Lead captured (no Flodesk form id yet):', {name, email});
+    }
+    localStorage.setItem('bg-ar-lead', JSON.stringify({name, email, at:Date.now()}));
+    localStorage.setItem('bg-ar-unlocked', '1');
+    openApp();
+  }catch(err){
+    console.error(err);
+    gateBtn.disabled = false; gateBtn.textContent = 'Open the Studio →';
+    gateError.textContent = 'Something went wrong. Please try again.';
+    gateError.classList.add('show');
+  }
+});
+
+function flodeskSubmit({name, email}){
+  return new Promise((resolve, reject)=>{
+    const iframeName = 'fd-target-'+Date.now();
+    const iframe = document.createElement('iframe');
+    iframe.name = iframeName; iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    const form = document.createElement('form');
+    form.action = `https://form.flodesk.com/forms/${FLODESK_FORM_ID}/submit`;
+    form.method = 'POST'; form.target = iframeName;
+    form.enctype = 'application/x-www-form-urlencoded';
+    [['email',email],['firstName',name],['source','ar-studio']].forEach(([k,v])=>{
+      const i = document.createElement('input');
+      i.type='hidden'; i.name=k; i.value=v||''; form.appendChild(i);
+    });
+    document.body.appendChild(form);
+    let done=false;
+    iframe.onload = ()=>{ if(done) return; done=true; cleanup(); resolve(); };
+    setTimeout(()=>{ if(done) return; done=true; cleanup(); resolve(); }, 3500);
+    function cleanup(){ try{form.remove(); iframe.remove();}catch(e){} }
+    form.submit();
+  });
+}
+
+// ============================== TAB SWITCHING ==============================
+document.querySelectorAll('.tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    document.querySelectorAll('.mode').forEach(m=>m.classList.remove('on'));
+    document.getElementById('mode-'+btn.dataset.tab).classList.add('on');
+    if(btn.dataset.tab==='camera'){ /* camera lazily inits on Start */ }
+  });
+});
+
+// ============================== HELP ==============================
+document.getElementById('help-btn').addEventListener('click', ()=>{
+  toast('Drag the artwork on the stage · scroll to resize · drag the sun on the dial to match the room\'s light.');
+});
+
+// ============================== TOAST ==============================
+const toastEl = document.getElementById('toast');
+let toastTimer;
+function toast(msg, ms=3200){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>toastEl.classList.remove('show'), ms);
+}
+
+// ============================== INTERIOR GALLERY ==============================
+const galleryEl = document.getElementById('gallery');
+function buildGallery(){
+  galleryEl.innerHTML='';
+  ROOMS.forEach((room, idx)=>{
+    const el = document.createElement('div');
+    el.className = 'thumb';
+    el.dataset.idx = idx;
+    const img = new Image();
+    const src = state.customRooms[idx] || ('interiors/'+room.file);
+    img.onload = ()=>{
+      el.innerHTML = `<img src="${img.src}" alt="${room.name}"><div class="thumb-label">${room.name}</div>`;
+      el.addEventListener('click', ()=>chooseRoom(idx));
+    };
+    img.onerror = ()=>{
+      el.classList.add('empty');
+      el.innerHTML = `
+        <div style="text-align:center">
+          <div class="upload-icon" style="font-size:14px">⬆</div>
+          <div class="upload-text">Drop<br>"${room.file}"</div>
+        </div>`;
+      el.addEventListener('click', ()=>pickFile().then(f=>{
+        if(!f) return;
+        readFile(f).then(url=>{
+          state.customRooms[idx] = url;
+          buildGallery();
+          chooseRoom(idx);
+        });
+      }));
+      el.addEventListener('dragover', e=>{e.preventDefault();el.style.background='#f6efe4'});
+      el.addEventListener('dragleave', ()=>el.style.background='');
+      el.addEventListener('drop', e=>{
+        e.preventDefault(); el.style.background='';
+        const f = e.dataTransfer.files[0];
+        if(!f) return;
+        readFile(f).then(url=>{
+          state.customRooms[idx] = url;
+          buildGallery();
+          chooseRoom(idx);
+        });
+      });
+    };
+    img.src = src;
+    galleryEl.appendChild(el);
+  });
+}
+buildGallery();
+
+function chooseRoom(idx){
+  state.room = idx;
+  const room = ROOMS[idx];
+  const bg = document.getElementById('stage-bg');
+  bg.src = state.customRooms[idx] || ('interiors/'+room.file);
+  bg.style.display = 'block';
+  document.getElementById('stage-empty').style.display='none';
+  document.querySelectorAll('.thumb').forEach(t=>t.classList.toggle('on', +t.dataset.idx===idx));
+
+  // Apply sun preset
+  Object.assign(state.sun, room.sun);
+  syncSunUI();
+  if(state.art) showActions();
+  renderArtwork();
+}
+
+// ============================== ARTWORK UPLOAD ==============================
+const artUpload = document.getElementById('art-upload');
+const artInput = document.getElementById('art-input');
+
+artUpload.addEventListener('click', ()=>artInput.click());
+artInput.addEventListener('change', e=>{
+  const f = e.target.files[0];
+  if(f) loadArtwork(f);
+});
+['dragover','dragenter'].forEach(ev=>artUpload.addEventListener(ev, e=>{
+  e.preventDefault(); artUpload.classList.add('has-file');
+}));
+artUpload.addEventListener('dragleave', ()=>artUpload.classList.remove('has-file'));
+artUpload.addEventListener('drop', e=>{
+  e.preventDefault();
+  const f = e.dataTransfer.files[0];
+  if(f) loadArtwork(f);
+});
+
+function loadArtwork(file){
+  readFile(file).then(url=>{
+    const i = new Image();
+    i.onload = ()=>{
+      // Cap displayed res at 1200px wide (anti-screenshot: low-res preview)
+      const maxW = 1200;
+      const scale = Math.min(1, maxW / i.naturalWidth);
+      state.art = {
+        src: url,
+        naturalW: i.naturalWidth,
+        naturalH: i.naturalHeight,
+        w: i.naturalWidth * scale,
+        h: i.naturalHeight * scale,
+      };
+      artUpload.classList.add('has-file');
+      artUpload.innerHTML = `<img src="${url}" alt="">`;
+      if(state.room===null){ toast('Now choose a room on the right →'); }
+      else { showActions(); }
+      renderArtwork();
+    };
+    i.src = url;
+  });
+}
+
+function pickFile(){
+  return new Promise(resolve=>{
+    const inp = document.createElement('input');
+    inp.type='file'; inp.accept='image/*';
+    inp.onchange = ()=>resolve(inp.files[0]||null);
+    inp.click();
+  });
+}
+function readFile(f){
+  return new Promise(resolve=>{
+    const r = new FileReader();
+    r.onload = ()=>resolve(r.result);
+    r.readAsDataURL(f);
+  });
+}
+
+function showActions(){
+  document.getElementById('stage-actions').style.display='flex';
+}
+
+// ============================== ARTWORK RENDERING ==============================
+const stage = document.getElementById('stage');
+let artEl = null;
+
+function renderArtwork(){
+  if(!state.art || state.room===null) return;
+  if(!artEl){
+    artEl = document.createElement('div');
+    artEl.className = 'artwork';
+    artEl.innerHTML = `
+      <div class="artwork-shadow"></div>
+      <div class="artwork-img"></div>
+      <div class="handles">
+        <div class="handle tl" data-h="tl"></div>
+        <div class="handle tr" data-h="tr"></div>
+        <div class="handle bl" data-h="bl"></div>
+        <div class="handle br" data-h="br"></div>
+        <div class="handle rotate" data-h="rotate"></div>
+      </div>`;
+    stage.appendChild(artEl);
+    attachArtInteractions(artEl);
+  }
+  // Update img
+  const imgEl = artEl.querySelector('.artwork-img');
+  imgEl.style.setProperty('--artwork-img', `url(${state.art.src})`);
+  imgEl.style.backgroundImage = `url(${state.art.src})`;
+
+  // Frame class
+  artEl.classList.toggle('frame-oak', state.frame==='oak');
+  artEl.classList.remove('frame-stain-light','frame-stain-natural','frame-stain-walnut');
+  if(state.frame==='oak') artEl.classList.add('frame-stain-'+state.frameStain);
+  artEl.style.setProperty('--frame-w', state.frameWidth+'px');
+
+  layoutArtwork();
+}
+
+function layoutArtwork(){
+  if(!artEl) return;
+  const stageRect = stage.getBoundingClientRect();
+  // Compute size in px
+  const aspect = state.art.h / state.art.w;
+  const widthPx = state.size * stageRect.width;
+  const heightPx = widthPx * aspect;
+
+  // Position (top-left)
+  const x = state.pos.x * stageRect.width;
+  const y = state.pos.y * stageRect.height;
+
+  artEl.style.width = widthPx + 'px';
+  artEl.style.height = heightPx + 'px';
+  artEl.style.transform = `translate(${x}px, ${y}px) rotate(${state.rotate}deg) skew(${state.skewX}deg, ${state.skewY}deg)`;
+
+  // Shadow
+  const ang = (state.sun.angle - 180) * Math.PI/180; // shadow opposite to sun
+  const len = state.sun.length;
+  const sx = Math.cos(ang) * len;
+  const sy = Math.sin(ang) * len;
+  const shadowEl = artEl.querySelector('.artwork-shadow');
+  shadowEl.style.transform = `translate(${sx}px, ${sy}px)`;
+  shadowEl.style.setProperty('--shadow-blur', state.sun.blur+'px');
+  shadowEl.style.setProperty('--shadow-opacity', (state.sun.opacity/100));
+  shadowEl.style.filter = `blur(${state.sun.blur}px)`;
+  shadowEl.style.opacity = state.sun.opacity/100;
+}
+
+// Recompute on resize
+window.addEventListener('resize', layoutArtwork);
+
+// ============================== ARTWORK INTERACTIONS ==============================
+function attachArtInteractions(el){
+  let mode = null; // 'drag' | 'resize-XX' | 'rotate'
+  let startPointer, startState;
+
+  el.addEventListener('pointerdown', e=>{
+    e.preventDefault();
+    el.setPointerCapture(e.pointerId);
+    el.classList.add('selected');
+    const handle = e.target.closest('.handle');
+    if(handle){
+      mode = handle.dataset.h==='rotate' ? 'rotate' : ('resize-'+handle.dataset.h);
+    }else{
+      mode = 'drag';
+    }
+    startPointer = {x:e.clientX, y:e.clientY};
+    startState = JSON.parse(JSON.stringify({pos:state.pos, size:state.size, rotate:state.rotate}));
+  });
+
+  el.addEventListener('pointermove', e=>{
+    if(!mode) return;
+    const sr = stage.getBoundingClientRect();
+    const dx = e.clientX - startPointer.x;
+    const dy = e.clientY - startPointer.y;
+    if(mode==='drag'){
+      state.pos.x = startState.pos.x + dx/sr.width;
+      state.pos.y = startState.pos.y + dy/sr.height;
+    }else if(mode==='rotate'){
+      const cx = sr.left + (startState.pos.x*sr.width) + (startState.size*sr.width)/2;
+      const cy = sr.top  + (startState.pos.y*sr.height) + (startState.size*sr.width*(state.art.h/state.art.w))/2;
+      const a = Math.atan2(e.clientY-cy, e.clientX-cx) * 180/Math.PI;
+      state.rotate = Math.round(a + 90);
+      document.getElementById('art-rotate').value = state.rotate;
+      document.getElementById('art-rotate-val').textContent = state.rotate+'°';
+    }else if(mode.startsWith('resize')){
+      const corner = mode.split('-')[1];
+      // Scale based on horizontal drag, signed by corner
+      const sign = (corner==='br'||corner==='tr') ? 1 : -1;
+      const delta = sign * dx / sr.width;
+      state.size = Math.max(0.06, Math.min(1.4, startState.size + delta));
+    }
+    layoutArtwork();
+  });
+
+  ['pointerup','pointercancel'].forEach(ev=>el.addEventListener(ev, ()=>{
+    mode = null;
+    setTimeout(()=>el.classList.remove('selected'), 1200);
+  }));
+
+  // Mouse wheel = scale
+  el.addEventListener('wheel', e=>{
+    e.preventDefault();
+    const delta = -e.deltaY * 0.001;
+    state.size = Math.max(0.06, Math.min(1.4, state.size + delta));
+    layoutArtwork();
+  }, {passive:false});
+}
+
+// ============================== CONTROL BINDINGS ==============================
+// Frame style
+document.querySelectorAll('#frame-style .chip').forEach(c=>c.addEventListener('click', ()=>{
+  document.querySelectorAll('#frame-style .chip').forEach(x=>x.classList.remove('on'));
+  c.classList.add('on');
+  state.frame = c.dataset.frame;
+  document.getElementById('frame-opts').style.display = state.frame==='oak' ? 'block' : 'none';
+  renderArtwork();
+}));
+document.querySelectorAll('#frame-stain .chip').forEach(c=>c.addEventListener('click', ()=>{
+  document.querySelectorAll('#frame-stain .chip').forEach(x=>x.classList.remove('on'));
+  c.classList.add('on');
+  state.frameStain = c.dataset.stain;
+  renderArtwork();
+}));
+document.getElementById('frame-width').addEventListener('input', e=>{
+  state.frameWidth = +e.target.value;
+  document.getElementById('frame-width-val').textContent = state.frameWidth;
+  renderArtwork();
+});
+
+// Tilt
+['rotate','skewx','skewy'].forEach(k=>{
+  const inp = document.getElementById('art-'+k);
+  const valEl = document.getElementById('art-'+k+'-val');
+  inp.addEventListener('input', ()=>{
+    const v = +inp.value;
+    if(k==='rotate') state.rotate = v;
+    if(k==='skewx')  state.skewX = v;
+    if(k==='skewy')  state.skewY = v;
+    valEl.textContent = v+'°';
+    layoutArtwork();
+  });
+});
+
+// Shadow sliders
+['length','blur','opacity'].forEach(k=>{
+  const inp = document.getElementById('shadow-'+k);
+  const valEl = document.getElementById('shadow-'+k+'-val');
+  inp.addEventListener('input', ()=>{
+    state.sun[k] = +inp.value;
+    valEl.textContent = inp.value;
+    layoutArtwork();
+  });
+});
+
+// Sun dial drag
+const sunDial = document.getElementById('sun-dial');
+const sunSun  = document.getElementById('sun-sun');
+function syncSunUI(){
+  const a = state.sun.angle;
+  const r = 32;
+  const rad = (a - 90) * Math.PI/180;
+  const x = Math.cos(rad)*r;
+  const y = Math.sin(rad)*r;
+  sunSun.style.transform = `translate(${x-7}px, ${y-7}px)`;
+  document.getElementById('sun-angle-label').textContent = angleLabel(a);
+  document.getElementById('shadow-length').value = state.sun.length;
+  document.getElementById('shadow-length-val').textContent = state.sun.length;
+  document.getElementById('shadow-blur').value = state.sun.blur;
+  document.getElementById('shadow-blur-val').textContent = state.sun.blur;
+  document.getElementById('shadow-opacity').value = state.sun.opacity;
+  document.getElementById('shadow-opacity-val').textContent = state.sun.opacity;
+}
+function angleLabel(a){
+  const labels = [
+    [0,'Top'],[45,'Top-right'],[90,'Right'],[135,'Bottom-right'],
+    [180,'Bottom'],[225,'Bottom-left'],[270,'Left'],[315,'Top-left']
+  ];
+  let best=labels[0], bestD=999;
+  for(const l of labels){
+    let d = Math.abs(((a-l[0]+540)%360)-180);
+    if(d<bestD){bestD=d;best=l}
+  }
+  return best[1] + ' · ' + Math.round(a) + '°';
+}
+syncSunUI();
+
+let dialDragging=false;
+sunDial.addEventListener('pointerdown', e=>{
+  dialDragging=true;
+  sunDial.setPointerCapture(e.pointerId);
+  updateDialFromPointer(e);
+});
+sunDial.addEventListener('pointermove', e=>{
+  if(dialDragging) updateDialFromPointer(e);
+});
+['pointerup','pointercancel'].forEach(ev=>sunDial.addEventListener(ev,()=>dialDragging=false));
+function updateDialFromPointer(e){
+  const rect = sunDial.getBoundingClientRect();
+  const cx = rect.left+rect.width/2;
+  const cy = rect.top+rect.height/2;
+  let a = Math.atan2(e.clientY-cy, e.clientX-cx)*180/Math.PI + 90;
+  a = (a+360)%360;
+  state.sun.angle = Math.round(a);
+  syncSunUI();
+  layoutArtwork();
+}
+
+// Actions
+document.getElementById('btn-center').addEventListener('click', ()=>{
+  state.pos = {x:0.5 - state.size/2, y:0.18};
+  layoutArtwork();
+});
+document.getElementById('btn-reset').addEventListener('click', ()=>{
+  state.pos = {x:0.4, y:0.18}; state.size=0.35;
+  state.rotate=0; state.skewX=0; state.skewY=0;
+  document.getElementById('art-rotate').value=0; document.getElementById('art-rotate-val').textContent='0°';
+  document.getElementById('art-skewx').value=0;  document.getElementById('art-skewx-val').textContent='0°';
+  document.getElementById('art-skewy').value=0;  document.getElementById('art-skewy-val').textContent='0°';
+  layoutArtwork();
+});
+document.getElementById('btn-download').addEventListener('click', exportComposite);
+
+// ============================== EXPORT ==============================
+async function exportComposite(){
+  if(!state.art || state.room===null){ toast('Choose a room and add artwork first.'); return; }
+  toast('Rendering your mock-up…');
+  const bgImg = document.getElementById('stage-bg');
+  const stageRect = stage.getBoundingClientRect();
+  const scale = 2;
+  const canvas = document.createElement('canvas');
+  canvas.width  = stageRect.width  * scale;
+  canvas.height = stageRect.height * scale;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+
+  // bg
+  ctx.drawImage(bgImg, 0, 0, stageRect.width, stageRect.height);
+
+  // artwork transform
+  const widthPx  = state.size * stageRect.width;
+  const heightPx = widthPx * (state.art.h/state.art.w);
+  const x = state.pos.x * stageRect.width;
+  const y = state.pos.y * stageRect.height;
+
+  // shadow
+  ctx.save();
+  const ang = (state.sun.angle - 180)*Math.PI/180;
+  const sx = Math.cos(ang)*state.sun.length;
+  const sy = Math.sin(ang)*state.sun.length;
+  ctx.translate(x+widthPx/2 + sx, y+heightPx/2 + sy);
+  ctx.rotate(state.rotate*Math.PI/180);
+  ctx.filter = `blur(${state.sun.blur}px)`;
+  ctx.fillStyle = `rgba(0,0,0,${state.sun.opacity/100})`;
+  ctx.fillRect(-widthPx/2, -heightPx/2, widthPx, heightPx);
+  ctx.restore();
+
+  // artwork
+  const artImg = new Image();
+  artImg.src = state.art.src;
+  await new Promise(r=>{ if(artImg.complete) r(); else artImg.onload=r; });
+
+  ctx.save();
+  ctx.translate(x+widthPx/2, y+heightPx/2);
+  ctx.rotate(state.rotate*Math.PI/180);
+  if(state.frame==='oak'){
+    const stains = {light:'#caa173', natural:'#b08550', walnut:'#5d3f28'};
+    const fw = state.frameWidth;
+    // outer frame
+    ctx.fillStyle = stains[state.frameStain];
+    ctx.fillRect(-widthPx/2, -heightPx/2, widthPx, heightPx);
+    // inner dark bevel
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillRect(-widthPx/2+fw-2, -heightPx/2+fw-2, widthPx-2*fw+4, heightPx-2*fw+4);
+    // image
+    ctx.drawImage(artImg, -widthPx/2+fw, -heightPx/2+fw, widthPx-2*fw, heightPx-2*fw);
+    // grain lines
+    ctx.strokeStyle = 'rgba(0,0,0,0.07)';
+    ctx.lineWidth = 1;
+    for(let i=0;i<60;i++){
+      const yy = -heightPx/2 + (i/60)*heightPx;
+      ctx.beginPath(); ctx.moveTo(-widthPx/2, yy); ctx.lineTo(widthPx/2, yy); ctx.stroke();
+    }
+  }else{
+    ctx.drawImage(artImg, -widthPx/2, -heightPx/2, widthPx, heightPx);
+  }
+  ctx.restore();
+
+  // watermark (small, bottom corner)
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.font = '500 11px "DM Sans", sans-serif';
+  ctx.fillText('© Brigitte Gerges · brigittegerges.com', 14, stageRect.height-14);
+
+  canvas.toBlob(blob=>{
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `brigitte-gerges-mockup-${Date.now()}.jpg`;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+    toast('Mock-up downloaded.');
+  }, 'image/jpeg', 0.92);
+}
+
+// ============================== AR CAMERA MODE ==============================
+const camVideo = document.getElementById('cam-video');
+const camStart = document.getElementById('cam-start');
+const camActions = document.getElementById('cam-actions');
+const camControls = document.getElementById('cam-controls');
+let camStream = null;
+let camFacing = 'environment';
+let camArtEl = null;
+
+document.getElementById('cam-go').addEventListener('click', startCamera);
+document.getElementById('cam-stop').addEventListener('click', stopCamera);
+document.getElementById('cam-flip').addEventListener('click', ()=>{
+  camFacing = camFacing==='environment' ? 'user' : 'environment';
+  stopCamera(); startCamera();
+});
+document.getElementById('cam-frame-toggle').addEventListener('click', ()=>{
+  state.frame = state.frame==='oak' ? 'none' : 'oak';
+  document.querySelectorAll('#frame-style .chip').forEach(c=>c.classList.toggle('on', c.dataset.frame===state.frame));
+  document.getElementById('frame-opts').style.display = state.frame==='oak' ? 'block' : 'none';
+  toast(state.frame==='oak' ? 'Oak frame on' : 'Frame off');
+  if(camArtEl) renderCamArt();
+});
+document.getElementById('cam-capture').addEventListener('click', captureCam);
+
+async function startCamera(){
+  if(!state.art){ toast('Upload your artwork in the Studio first.'); return; }
+  try{
+    camStream = await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:camFacing}, audio:false
+    });
+    camVideo.srcObject = camStream;
+    camStart.classList.add('hide');
+    camActions.style.display='flex';
+    camControls.style.display='flex';
+    spawnCamArt();
+  }catch(err){
+    toast('Camera access denied. Check your browser permissions.');
+    console.error(err);
+  }
+}
+function stopCamera(){
+  if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
+  camStart.classList.remove('hide');
+  camActions.style.display='none';
+  camControls.style.display='none';
+}
+
+function spawnCamArt(){
+  const camMode = document.getElementById('mode-camera');
+  if(!camArtEl){
+    camArtEl = document.createElement('div');
+    camArtEl.className = 'artwork';
+    camArtEl.style.position = 'absolute';
+    camArtEl.innerHTML = `
+      <div class="artwork-shadow"></div>
+      <div class="artwork-img"></div>
+      <div class="handles">
+        <div class="handle tl" data-h="tl"></div>
+        <div class="handle tr" data-h="tr"></div>
+        <div class="handle bl" data-h="bl"></div>
+        <div class="handle br" data-h="br"></div>
+        <div class="handle rotate" data-h="rotate"></div>
+      </div>`;
+    camMode.appendChild(camArtEl);
+    attachCamInteractions(camArtEl);
+  }
+  renderCamArt();
+}
+function renderCamArt(){
+  const imgEl = camArtEl.querySelector('.artwork-img');
+  imgEl.style.setProperty('--artwork-img', `url(${state.art.src})`);
+  imgEl.style.backgroundImage = `url(${state.art.src})`;
+  camArtEl.classList.toggle('frame-oak', state.frame==='oak');
+  camArtEl.classList.remove('frame-stain-light','frame-stain-natural','frame-stain-walnut');
+  if(state.frame==='oak') camArtEl.classList.add('frame-stain-'+state.frameStain);
+  camArtEl.style.setProperty('--frame-w', state.frameWidth+'px');
+
+  const camRect = document.getElementById('mode-camera').getBoundingClientRect();
+  const aspect = state.art.h/state.art.w;
+  const w = 0.4 * camRect.width;
+  const h = w * aspect;
+  if(!camArtEl._cx){ camArtEl._cx = camRect.width/2 - w/2; camArtEl._cy = camRect.height/2 - h/2; camArtEl._w = w; camArtEl._rot = 0; }
+  layoutCamArt();
+}
+function layoutCamArt(){
+  const w = camArtEl._w;
+  const h = w * (state.art.h/state.art.w);
+  camArtEl.style.width = w+'px';
+  camArtEl.style.height = h+'px';
+  camArtEl.style.transform = `translate(${camArtEl._cx}px, ${camArtEl._cy}px) rotate(${camArtEl._rot}deg)`;
+  const shadowEl = camArtEl.querySelector('.artwork-shadow');
+  shadowEl.style.transform = `translate(8px, 8px)`;
+  shadowEl.style.filter = 'blur(16px)';
+  shadowEl.style.opacity = .4;
+}
+function attachCamInteractions(el){
+  let mode=null, sp=null, sv=null;
+  el.addEventListener('pointerdown', e=>{
+    e.preventDefault();
+    el.setPointerCapture(e.pointerId);
+    const handle = e.target.closest('.handle');
+    mode = handle ? (handle.dataset.h==='rotate' ? 'rotate' : 'resize-'+handle.dataset.h) : 'drag';
+    sp={x:e.clientX,y:e.clientY};
+    sv={cx:el._cx, cy:el._cy, w:el._w, rot:el._rot};
+  });
+  el.addEventListener('pointermove', e=>{
+    if(!mode) return;
+    const dx=e.clientX-sp.x, dy=e.clientY-sp.y;
+    if(mode==='drag'){ el._cx=sv.cx+dx; el._cy=sv.cy+dy; }
+    else if(mode==='rotate'){
+      const cx=el.getBoundingClientRect().left+el.offsetWidth/2;
+      const cy=el.getBoundingClientRect().top+el.offsetHeight/2;
+      const a=Math.atan2(e.clientY-cy, e.clientX-cx)*180/Math.PI;
+      el._rot = Math.round(a+90);
+    }
+    else if(mode.startsWith('resize')){
+      const corner=mode.split('-')[1];
+      const sign=(corner==='br'||corner==='tr')?1:-1;
+      el._w = Math.max(80, sv.w + sign*dx);
+    }
+    layoutCamArt();
+  });
+  ['pointerup','pointercancel'].forEach(ev=>el.addEventListener(ev, ()=>mode=null));
+  el.addEventListener('wheel', e=>{
+    e.preventDefault();
+    el._w = Math.max(60, el._w - e.deltaY*0.5);
+    layoutCamArt();
+  }, {passive:false});
+}
+
+async function captureCam(){
+  if(!camStream){ return; }
+  const camRect = document.getElementById('mode-camera').getBoundingClientRect();
+  const scale = 2;
+  const canvas = document.createElement('canvas');
+  canvas.width = camRect.width*scale; canvas.height = camRect.height*scale;
+  const ctx = canvas.getContext('2d'); ctx.scale(scale,scale);
+
+  // draw video
+  const vw = camVideo.videoWidth, vh = camVideo.videoHeight;
+  if(vw && vh){
+    // cover-fit
+    const vidAspect = vw/vh, boxAspect = camRect.width/camRect.height;
+    let sx,sy,sw,sh;
+    if(vidAspect > boxAspect){
+      sh = vh; sw = vh*boxAspect; sx = (vw-sw)/2; sy = 0;
+    }else{
+      sw = vw; sh = vw/boxAspect; sx = 0; sy = (vh-sh)/2;
+    }
+    ctx.drawImage(camVideo, sx,sy,sw,sh, 0,0,camRect.width,camRect.height);
+  }
+  // artwork
+  if(camArtEl && state.art){
+    const w = camArtEl._w;
+    const h = w*(state.art.h/state.art.w);
+    const cx = camArtEl._cx + w/2;
+    const cy = camArtEl._cy + h/2;
+    const artImg = new Image(); artImg.src = state.art.src;
+    await new Promise(r=>{ if(artImg.complete) r(); else artImg.onload=r; });
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(camArtEl._rot*Math.PI/180);
+    // shadow
+    ctx.save(); ctx.translate(8,8); ctx.filter='blur(16px)';
+    ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fillRect(-w/2,-h/2,w,h);
+    ctx.restore();
+    if(state.frame==='oak'){
+      const stains={light:'#caa173',natural:'#b08550',walnut:'#5d3f28'};
+      const fw=state.frameWidth;
+      ctx.fillStyle=stains[state.frameStain]; ctx.fillRect(-w/2,-h/2,w,h);
+      ctx.fillStyle='rgba(0,0,0,0.35)'; ctx.fillRect(-w/2+fw-2,-h/2+fw-2,w-2*fw+4,h-2*fw+4);
+      ctx.drawImage(artImg, -w/2+fw, -h/2+fw, w-2*fw, h-2*fw);
+    }else{
+      ctx.drawImage(artImg, -w/2, -h/2, w, h);
+    }
+    ctx.restore();
+  }
+  ctx.fillStyle='rgba(255,255,255,0.6)';
+  ctx.font='500 11px "DM Sans", sans-serif';
+  ctx.fillText('© Brigitte Gerges · brigittegerges.com', 14, camRect.height-14);
+  canvas.toBlob(blob=>{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`brigitte-gerges-ar-${Date.now()}.jpg`;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    toast('Snapshot saved.');
+  }, 'image/jpeg', 0.92);
+}
+
+// ============================== ANTI-SCREENSHOT DETERRENTS ==============================
+// Blur on tab switch / print dialog. Doesn't stop OS-level screenshots — see README.
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='hidden') document.body.classList.add('protected');
+  else document.body.classList.remove('protected');
+});
+window.addEventListener('blur', ()=>document.body.classList.add('protected'));
+window.addEventListener('focus', ()=>document.body.classList.remove('protected'));
+window.addEventListener('beforeprint', ()=>document.body.classList.add('protected'));
+window.addEventListener('afterprint', ()=>document.body.classList.remove('protected'));
+
+// Block common save shortcuts (deterrent only)
+document.addEventListener('keydown', e=>{
+  const k = e.key.toLowerCase();
+  if((e.ctrlKey||e.metaKey) && (k==='s'||k==='p')){ e.preventDefault(); toast('Saving disabled. Click "Download mock-up" to export.'); }
+});
+// Block drag of any image
+document.addEventListener('dragstart', e=>{ if(e.target.tagName==='IMG') e.preventDefault(); });
+
+// ============================== SHARE TO UNLOCK $300 ==============================
+// Configure where the booking CTA sends them. The discount code is appended as ?code=...
+const COMMISSION_URL = 'https://brigittegerges.com/commission';
+const SHARE_CAPTION  = "I just mocked up a Brigitte Gerges piece in my space ✨ Try it yourself & tag @brigittegerges to unlock $300 off a commission.";
+const PUBLIC_APP_URL = window.location.origin + window.location.pathname; // the lead-magnet URL
+
+const shareModal   = document.getElementById('share-modal');
+const sharePreview = document.getElementById('share-preview');
+const codeLock     = document.getElementById('code-lock');
+const codeValue    = document.getElementById('code-value');
+const codeSub      = document.getElementById('code-sub');
+const bookLink     = document.getElementById('book-link');
+let lastBlob = null;
+let lastBlobUrl = null;
+
+document.getElementById('btn-share').addEventListener('click', ()=>openShare('studio'));
+document.getElementById('cam-share').addEventListener('click', ()=>openShare('cam'));
+document.getElementById('share-close').addEventListener('click', closeShare);
+shareModal.addEventListener('click', e=>{ if(e.target===shareModal) closeShare(); });
+
+async function openShare(source){
+  // Render a composite into a blob first so all share paths can use it.
+  if(source==='studio'){
+    if(!state.art || state.room===null){ toast('Choose a room and add artwork first.'); return; }
+    lastBlob = await renderStudioBlob();
+  }else{
+    if(!camStream || !state.art){ toast('Start the camera and place your artwork first.'); return; }
+    lastBlob = await renderCamBlob();
+  }
+  if(lastBlobUrl){ URL.revokeObjectURL(lastBlobUrl); }
+  lastBlobUrl = URL.createObjectURL(lastBlob);
+  sharePreview.innerHTML = `<img src="${lastBlobUrl}" alt="">`;
+
+  // Set up code (deterministic per email so they can re-open and find the same one)
+  const lead = JSON.parse(localStorage.getItem('bg-ar-lead') || '{}');
+  const code = generateCode(lead.email || 'guest@brigittegerges.com');
+  codeValue.textContent = code;
+  bookLink.href = COMMISSION_URL + '?code=' + encodeURIComponent(code);
+  codeSub.innerHTML = '$300 off your commission deposit · <b>only $200 to secure your spot</b> · valid 14 days';
+
+  // Stay locked until they actually share.
+  if(localStorage.getItem('bg-ar-shared')==='1'){
+    codeLock.classList.remove('locked');
+  }else{
+    codeLock.classList.add('locked');
+  }
+  shareModal.classList.add('show');
+}
+function closeShare(){ shareModal.classList.remove('show'); }
+
+function generateCode(email){
+  let h = 0;
+  for(const c of email){ h = ((h<<5)-h) + c.charCodeAt(0); h |= 0; }
+  const alpha = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = ''; let n = Math.abs(h) + 7919;
+  for(let i=0;i<6;i++){ code += alpha[n % alpha.length]; n = Math.floor(n / alpha.length) + 31; }
+  return 'BG-' + code;
+}
+
+function unlockCode(){
+  codeLock.classList.remove('locked');
+  localStorage.setItem('bg-ar-shared', '1');
+  toast('Code unlocked — copy & redeem at checkout.');
+}
+
+// Native Web Share (mobile + most modern browsers) — best path for Instagram on iOS/Android.
+document.getElementById('sb-native').addEventListener('click', async ()=>{
+  if(!lastBlob) return;
+  const file = new File([lastBlob], 'brigitte-gerges-mockup.jpg', {type:'image/jpeg'});
+  const data = { title:'My Brigitte Gerges mock-up', text:SHARE_CAPTION, files:[file], url:PUBLIC_APP_URL };
+  try{
+    if(navigator.canShare && navigator.canShare(data)){
+      await navigator.share(data);
+      unlockCode();
+    }else if(navigator.share){
+      await navigator.share({ title:data.title, text:SHARE_CAPTION+' '+PUBLIC_APP_URL });
+      unlockCode();
+    }else{
+      // Desktop fallback: download + open Instagram tab.
+      downloadBlob(lastBlob, 'brigitte-gerges-mockup.jpg');
+      window.open('https://www.instagram.com/', '_blank', 'noopener');
+      toast('Image downloaded — upload it to your Instagram story.');
+      unlockCode();
+    }
+  }catch(err){ /* user cancelled — don't unlock */ }
+});
+
+document.querySelectorAll('[data-share]').forEach(btn=>{
+  btn.addEventListener('click', ()=>handlePlatform(btn.dataset.share));
+});
+
+function handlePlatform(platform){
+  if(!lastBlob) return;
+  const text = encodeURIComponent(SHARE_CAPTION + ' ' + PUBLIC_APP_URL);
+  let url = '';
+  switch(platform){
+    case 'whatsapp':
+      url = `https://wa.me/?text=${text}`;
+      window.open(url, '_blank', 'noopener');
+      unlockCode();
+      break;
+    case 'messenger':
+      url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(PUBLIC_APP_URL)}&quote=${encodeURIComponent(SHARE_CAPTION)}`;
+      window.open(url, '_blank', 'noopener');
+      unlockCode();
+      break;
+    case 'email':
+      url = `mailto:?subject=${encodeURIComponent('See it on the wall')}&body=${text}`;
+      window.location.href = url;
+      unlockCode();
+      break;
+    case 'sms':
+      url = `sms:?&body=${text}`;
+      window.location.href = url;
+      unlockCode();
+      break;
+    case 'copy':
+      navigator.clipboard.writeText(PUBLIC_APP_URL).then(()=>{
+        toast('Link copied — paste it anywhere.');
+        unlockCode();
+      });
+      break;
+    case 'instagram':
+      // Instagram has no public web-share URL. Download the image + open Instagram so they can upload to story.
+      downloadBlob(lastBlob, 'brigitte-gerges-mockup.jpg');
+      const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+      window.open(isMobile ? 'instagram://story-camera' : 'https://www.instagram.com/', '_blank', 'noopener');
+      toast('Image saved. Open Instagram → Story → upload it & tag @brigittegerges.');
+      unlockCode();
+      break;
+  }
+}
+
+document.getElementById('copy-code').addEventListener('click', ()=>{
+  if(codeLock.classList.contains('locked')){ toast('Share first to reveal your code.'); return; }
+  navigator.clipboard.writeText(codeValue.textContent).then(()=>toast('Code copied.'));
+});
+
+function downloadBlob(blob, name){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+}
+
+// Reuse existing canvas renderers but return blobs instead of triggering download.
+async function renderStudioBlob(){
+  const bgImg = document.getElementById('stage-bg');
+  const stageRect = stage.getBoundingClientRect();
+  const scale = 2;
+  const canvas = document.createElement('canvas');
+  canvas.width  = stageRect.width  * scale;
+  canvas.height = stageRect.height * scale;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+  ctx.drawImage(bgImg, 0, 0, stageRect.width, stageRect.height);
+  const widthPx  = state.size * stageRect.width;
+  const heightPx = widthPx * (state.art.h/state.art.w);
+  const x = state.pos.x * stageRect.width;
+  const y = state.pos.y * stageRect.height;
+  ctx.save();
+  const ang = (state.sun.angle - 180)*Math.PI/180;
+  const sx = Math.cos(ang)*state.sun.length;
+  const sy = Math.sin(ang)*state.sun.length;
+  ctx.translate(x+widthPx/2 + sx, y+heightPx/2 + sy);
+  ctx.rotate(state.rotate*Math.PI/180);
+  ctx.filter = `blur(${state.sun.blur}px)`;
+  ctx.fillStyle = `rgba(0,0,0,${state.sun.opacity/100})`;
+  ctx.fillRect(-widthPx/2, -heightPx/2, widthPx, heightPx);
+  ctx.restore();
+  const artImg = new Image(); artImg.src = state.art.src;
+  await new Promise(r=>{ if(artImg.complete) r(); else artImg.onload=r; });
+  ctx.save();
+  ctx.translate(x+widthPx/2, y+heightPx/2);
+  ctx.rotate(state.rotate*Math.PI/180);
+  if(state.frame==='oak'){
+    const stains = {light:'#caa173', natural:'#b08550', walnut:'#5d3f28'};
+    const fw = state.frameWidth;
+    ctx.fillStyle = stains[state.frameStain];
+    ctx.fillRect(-widthPx/2, -heightPx/2, widthPx, heightPx);
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillRect(-widthPx/2+fw-2, -heightPx/2+fw-2, widthPx-2*fw+4, heightPx-2*fw+4);
+    ctx.drawImage(artImg, -widthPx/2+fw, -heightPx/2+fw, widthPx-2*fw, heightPx-2*fw);
+    ctx.strokeStyle = 'rgba(0,0,0,0.07)';
+    for(let i=0;i<60;i++){
+      const yy = -heightPx/2 + (i/60)*heightPx;
+      ctx.beginPath(); ctx.moveTo(-widthPx/2, yy); ctx.lineTo(widthPx/2, yy); ctx.stroke();
+    }
+  }else{
+    ctx.drawImage(artImg, -widthPx/2, -heightPx/2, widthPx, heightPx);
+  }
+  ctx.restore();
+  ctx.fillStyle='rgba(255,255,255,0.7)';
+  ctx.font='500 11px "DM Sans", sans-serif';
+  ctx.fillText('© Brigitte Gerges · brigittegerges.com', 14, stageRect.height-14);
+  return await new Promise(res=>canvas.toBlob(res, 'image/jpeg', 0.92));
+}
+
+async function renderCamBlob(){
+  const camRect = document.getElementById('mode-camera').getBoundingClientRect();
+  const scale = 2;
+  const canvas = document.createElement('canvas');
+  canvas.width = camRect.width*scale; canvas.height = camRect.height*scale;
+  const ctx = canvas.getContext('2d'); ctx.scale(scale,scale);
+  const vw = camVideo.videoWidth, vh = camVideo.videoHeight;
+  if(vw && vh){
+    const vidAspect = vw/vh, boxAspect = camRect.width/camRect.height;
+    let sx,sy,sw,sh;
+    if(vidAspect > boxAspect){ sh = vh; sw = vh*boxAspect; sx = (vw-sw)/2; sy = 0; }
+    else{ sw = vw; sh = vw/boxAspect; sx = 0; sy = (vh-sh)/2; }
+    ctx.drawImage(camVideo, sx,sy,sw,sh, 0,0,camRect.width,camRect.height);
+  }
+  if(camArtEl && state.art){
+    const w = camArtEl._w; const h = w*(state.art.h/state.art.w);
+    const cx = camArtEl._cx + w/2, cy = camArtEl._cy + h/2;
+    const artImg = new Image(); artImg.src = state.art.src;
+    await new Promise(r=>{ if(artImg.complete) r(); else artImg.onload=r; });
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(camArtEl._rot*Math.PI/180);
+    ctx.save(); ctx.translate(8,8); ctx.filter='blur(16px)';
+    ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fillRect(-w/2,-h/2,w,h);
+    ctx.restore();
+    if(state.frame==='oak'){
+      const stains={light:'#caa173',natural:'#b08550',walnut:'#5d3f28'};
+      const fw=state.frameWidth;
+      ctx.fillStyle=stains[state.frameStain]; ctx.fillRect(-w/2,-h/2,w,h);
+      ctx.fillStyle='rgba(0,0,0,0.35)'; ctx.fillRect(-w/2+fw-2,-h/2+fw-2,w-2*fw+4,h-2*fw+4);
+      ctx.drawImage(artImg, -w/2+fw, -h/2+fw, w-2*fw, h-2*fw);
+    }else{
+      ctx.drawImage(artImg, -w/2, -h/2, w, h);
+    }
+    ctx.restore();
+  }
+  ctx.fillStyle='rgba(255,255,255,0.7)';
+  ctx.font='500 11px "DM Sans", sans-serif';
+  ctx.fillText('© Brigitte Gerges · brigittegerges.com', 14, camRect.height-14);
+  return await new Promise(res=>canvas.toBlob(res, 'image/jpeg', 0.92));
+}
+</script>
+</body>
+</html>
