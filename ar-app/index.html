@@ -1033,20 +1033,47 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 
 // ============================== CONFIG ==============================
 // Flodesk integration — paste your form ID below.
-// To enable: log in to Flodesk → Audience → Forms → Inline Form → "Embed"
-// → copy the form ID (the value of `data-ff-el`). Paste it here.
-// Until configured, signups are stored locally + logged to console so you can wire it up later.
-const FLODESK_FORM_ID = ''; // e.g. "67abc1234567890abcdef000"
+const FLODESK_FORM_ID = '';
 const FLODESK_SEGMENT_NAME = 'AR Studio leads';
 
-// Interiors that auto-load from /interiors. Sun defaults match each reference photo.
-const ROOMS = [
-  {file:'interior-1.jpg', name:'Brick & sun loft',           sun:{angle:55,  length:28, blur:14, opacity:42}},
-  {file:'interior-2.jpg', name:'Federation green velvet',    sun:{angle:80,  length:22, blur:20, opacity:32}},
-  {file:'interior-3.jpg', name:'Coastal golden hour',        sun:{angle:95,  length:24, blur:22, opacity:30}},
-  {file:'interior-4.jpg', name:'Federation marble fireplace', sun:{angle:75,  length:24, blur:18, opacity:36}},
-  {file:'interior-5.jpg', name:'Coastal harbour living',     sun:{angle:100, length:16, blur:26, opacity:22}},
+// Shopify-hosted reference rooms. Swap any URL here without touching logic below.
+// First URL also becomes the landing-page hero photo.
+const SHOPIFY_CDN = 'https://cdn.shopify.com/s/files/1/0655/7666/5300/files/';
+
+const ROOM_URLS = [
+  SHOPIFY_CDN + 'IMG-1638.png?v=1779241729',  // also used as landing hero
+  SHOPIFY_CDN + 'IMG-1588.png?v=1779241729',
+  SHOPIFY_CDN + 'IMG-1589.png?v=1779241729',
+  SHOPIFY_CDN + 'IMG-1587.png?v=1779241729',
+  SHOPIFY_CDN + 'IMG-1586.png?v=1779241729',
+  SHOPIFY_CDN + 'IMG-1585.png?v=1779241729',
+  SHOPIFY_CDN + 'IMG-1584.png?v=1779241729',
+  SHOPIFY_CDN + 'IMG-1583.png?v=1779241730',
+  SHOPIFY_CDN + 'IMG-1582.png?v=1779241729',
+  SHOPIFY_CDN + 'IMG-1581.png?v=1779241729',
+  SHOPIFY_CDN + 'IMG-1580.png?v=1779241729',
+  SHOPIFY_CDN + 'IMG-1579.png?v=1779241729',
+  SHOPIFY_CDN + 'IMG-1578.png?v=1779241729',
+  SHOPIFY_CDN + 'IMG-1577.png?v=1779241729',
+  SHOPIFY_CDN + 'IMG-1576.png?v=1779241729',
 ];
+const HERO_URL = ROOM_URLS[0];
+
+// Default sun direction & shadow per room. Tweakable via the dial in-app.
+// Five mood presets cycled across all rooms — fine-tune per room once you can see them on the deployed page.
+const SUN_PRESETS = [
+  {angle:55,  length:26, blur:16, opacity:38}, // strong directional warm (golden hour from upper-right)
+  {angle:80,  length:22, blur:20, opacity:32}, // soft warm from right
+  {angle:95,  length:24, blur:22, opacity:30}, // golden hour side
+  {angle:75,  length:24, blur:18, opacity:36}, // directional warm from upper-right
+  {angle:100, length:16, blur:26, opacity:22}, // diffuse soft from right
+];
+
+const ROOMS = ROOM_URLS.map((url, i) => ({
+  url,
+  name: `Room ${i+1}`,
+  sun: { ...SUN_PRESETS[i % SUN_PRESETS.length] },
+}));
 
 // ============================== STATE ==============================
 const state = {
@@ -1074,6 +1101,19 @@ function openApp(){
   gate.classList.add('hide');
   setTimeout(()=>gate.style.display='none', 450);
 }
+
+// Wire the hero image into the landing page
+(function setHero(){
+  const heroEl = document.getElementById('gate-hero-img');
+  if(heroEl && typeof HERO_URL !== 'undefined' && HERO_URL){
+    const img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = ()=>{
+      heroEl.classList.remove('default');
+      heroEl.style.backgroundImage = `url("${HERO_URL}")`;
+    };
+    img.src = HERO_URL;
+  }
+})();
 
 if(localStorage.getItem('bg-ar-unlocked')==='1'){
   openApp();
@@ -1162,6 +1202,10 @@ function toast(msg, ms=3200){
 
 // ============================== INTERIOR GALLERY ==============================
 const galleryEl = document.getElementById('gallery');
+function roomSrc(idx){
+  return state.customRooms[idx] || ROOMS[idx].url;
+}
+
 function buildGallery(){
   galleryEl.innerHTML='';
   ROOMS.forEach((room, idx)=>{
@@ -1169,7 +1213,8 @@ function buildGallery(){
     el.className = 'thumb';
     el.dataset.idx = idx;
     const img = new Image();
-    const src = state.customRooms[idx] || ('interiors/'+room.file);
+    img.crossOrigin = 'anonymous';
+    const src = roomSrc(idx);
     img.onload = ()=>{
       el.innerHTML = `<img src="${img.src}" alt="${room.name}"><div class="thumb-label">${room.name}</div>`;
       el.addEventListener('click', ()=>chooseRoom(idx));
@@ -1179,7 +1224,7 @@ function buildGallery(){
       el.innerHTML = `
         <div style="text-align:center">
           <div class="upload-icon" style="font-size:14px">⬆</div>
-          <div class="upload-text">Drop<br>"${room.file}"</div>
+          <div class="upload-text">Drop a<br>room photo</div>
         </div>`;
       el.addEventListener('click', ()=>pickFile().then(f=>{
         if(!f) return;
@@ -1212,12 +1257,12 @@ function chooseRoom(idx){
   state.room = idx;
   const room = ROOMS[idx];
   const bg = document.getElementById('stage-bg');
-  bg.src = state.customRooms[idx] || ('interiors/'+room.file);
+  bg.crossOrigin = 'anonymous';
+  bg.src = roomSrc(idx);
   bg.style.display = 'block';
   document.getElementById('stage-empty').style.display='none';
   document.querySelectorAll('.thumb').forEach(t=>t.classList.toggle('on', +t.dataset.idx===idx));
 
-  // Apply sun preset
   Object.assign(state.sun, room.sun);
   syncSunUI();
   if(state.art) showActions();
@@ -1374,7 +1419,8 @@ const LIGHT_RECIPE = {
 
 function applyRoomLight(el){
   if(state.room===null) return;
-  const r = LIGHT_RECIPE[state.room] || LIGHT_RECIPE[1];
+  // 5 tuned recipes cycle across all room slots — refine LIGHT_RECIPE per-index once you can preview each room.
+  const r = LIGHT_RECIPE[state.room] || LIGHT_RECIPE[state.room % 5] || LIGHT_RECIPE[0];
   el.style.setProperty('--glow-x', r.glow_x);
   el.style.setProperty('--glow-y', r.glow_y);
   el.style.setProperty('--light-angle', r.angle+'deg');
